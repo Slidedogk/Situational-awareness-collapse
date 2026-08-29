@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Situational Awareness Hedge Fund Collapse — The $45B Rise and Fall, From SEC Filings</title>
+<meta name="description" content="The complete post-mortem of Situational Awareness, Leopold Aschenbrenner's $45B AI hedge fund: how the public book grew 79× to $20.24B, and how margin calls forced its sale to Citadel in July 2026. Built on SEC EDGAR filings and named press reporting.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Situational Awareness: Anatomy of a $45B Hedge Fund Collapse">
+<meta property="og:description" content="Quarter by quarter, filing by filing: how a 24-year-old's AI fund grew from $254.8M to $20.24B — and lost it all in one July week.">
+<meta property="og:image" content="assets/img/dc-hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230B0C0E'/%3E%3Crect x='8' y='4' width='4' height='24' fill='%23E8E4D9'/%3E%3Crect x='16' y='10' width='4' height='18' fill='%23E8E4D9'/%3E%3Crect x='24' y='16' width='4' height='12' fill='%23D6492F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============ SITUATIONAL AWARENESS — POST-MORTEM (self-contained) ============
+   World: precisionist industrial plate x forensic data-room x crash-report numerals
+   One raking light. Flat unmodulated planes. Signal red reserved for LOSS only. */
+:root {
+  --ink:   #0B0C0E;
+  --ink2:  #14161B;
+  --ink3:  #101216;
+  --paper: #E8E4D9;
+  --body:  #A09A8C;
+  --dim:   #6E7683;
+  --lose:  #D6492F;
+  --gain:  #9AA3B0;
+  --rule:  #242832;
+  --rule2: #3A4152;
+  --sans: "Inter", "Inter var", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --gutter: clamp(20px, 5vw, 84px);
+  --band-gap: clamp(120px, 16vh, 220px);
+  --ease: cubic-bezier(0.16, 0.84, 0.24, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--ink); color: var(--body); font-family: var(--sans); font-size: 17px; font-weight: 400; line-height: 1.72; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+::selection { background: var(--paper); color: var(--ink); }
+a { color: inherit; }
+a:hover { color: var(--paper); }
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px; }
+
+/* ---------- sticky chrome: case file strip + room nav ---------- */
+.chrome { position: sticky; top: 0; z-index: 60; background: var(--ink); border-bottom: 1px solid var(--rule); }
+.filestrip {
+  display: flex; flex-wrap: wrap; align-items: stretch;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--sans); font-size: 10.5px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--dim);
+  background: transparent;
+}
+.filestrip .cell { padding: 10px var(--gutter) 10px 0; border-right: 1px solid var(--rule); margin-right: var(--gutter); white-space: nowrap; }
+.filestrip .cell:first-child { padding-left: var(--gutter); }
+.filestrip .cell:last-child { border-right: 0; margin-right: 0; }
+.filestrip .flag { color: var(--lose); }
+.filestrip .ok { color: var(--gain); }
+.rooms { display: flex; overflow-x: auto; scroll-behavior: smooth; }
+.rooms a {
+  flex: 1 0 auto; white-space: nowrap; text-decoration: none;
+  padding: 12px var(--gutter) 11px calc(var(--gutter) - 0px);
+  font-family: var(--sans); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--dim); border-right: 1px solid var(--rule); border-bottom: 2px solid transparent;
+}
+.rooms a:first-child { padding-left: var(--gutter); }
+.rooms a:last-child { border-right: 0; }
+.rooms a .n { margin-right: 9px; }
+.rooms a:hover { color: var(--paper); }
+.rooms a.on { color: var(--paper); border-bottom-color: var(--lose); }
+.rooms a.on .n { color: var(--lose); }
+.rooms a .dot { display: inline-block; width: 6px; height: 6px; margin-right: 9px; background: var(--rule2); }
+.rooms a.on .dot { background: var(--lose); }
+@media (max-width: 760px) {
+  .filestrip .cell { margin-right: 18px; padding-right: 18px; font-size: 9.5px; }
+  .filestrip .cell.hide-sm { display: none; }
+  .rooms a { padding: 10px 14px 10px 14px; font-size: 9.5px; letter-spacing: 0.12em; }
+  .rooms a .lbl-long { display: none; }
+  .rooms a:first-child { padding-left: 18px; }
+}
+
+/* ---------- bands ---------- */
+.band { padding: var(--band-gap) var(--gutter); border-bottom: 1px solid var(--rule); position: relative; }
+.band.tight { padding-top: clamp(64px, 9vh, 120px); padding-bottom: clamp(64px, 9vh, 120px); }
+.band.lit { background: var(--ink2); }
+.inner { max-width: 1480px; margin: 0 auto; }
+.lead { font-family: var(--sans); font-size: clamp(19px, 1.9vw, 24px); line-height: 1.55; color: var(--paper); max-width: 62ch; }
+.klabel {
+  font-family: var(--sans); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim);
+  margin-bottom: clamp(28px, 4vh, 56px); display: flex; gap: 18px; align-items: baseline;
+}
+.klabel::before { content: ""; width: 12px; height: 1px; background: var(--rule2); align-self: center; }
+h1 {
+  font-family: var(--sans); font-weight: 900; font-size: clamp(44px, 7.5vw, 128px); line-height: 0.94;
+  letter-spacing: -0.035em; text-transform: uppercase; color: var(--paper); margin-bottom: clamp(28px, 5vh, 64px);
+}
+h2 {
+  font-family: var(--sans); font-weight: 800; font-size: clamp(30px, 4.2vw, 64px); line-height: 1.0;
+  letter-spacing: -0.03em; text-transform: uppercase; color: var(--paper);
+  margin-bottom: clamp(24px, 4vh, 48px); max-width: 24ch;
+}
+h3 { font-family: var(--sans); font-weight: 800; font-size: clamp(16px, 1.6vw, 20px); letter-spacing: 0.04em; text-transform: uppercase; color: var(--paper); margin-bottom: 14px; }
+em { color: var(--paper); font-style: italic; }
+mark { background: none; color: var(--paper); font-weight: 600; }
+mark.red, .red { color: var(--lose); font-weight: inherit; }
+.red { color: var(--lose); }
+.rule-note { font-family: var(--sans); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+
+/* room dividers + anchor offset */
+.room { border-top: 1px solid var(--rule); }
+.room:first-of-type { border-top: 0; }
+.room[id] { scroll-margin-top: 118px; }
+
+/* ---------- numeral stack ---------- */
+.nums { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr); align-items: end; gap: clamp(24px, 4vw, 72px); border-top: 1px solid var(--rule2); padding-top: clamp(28px, 4vh, 48px); }
+.num { border-left: 1px solid var(--rule); padding-left: clamp(16px, 2vw, 32px); min-width: 0; }
+.num:first-child { border-left: 0; padding-left: 0; }
+.num .v { font-family: var(--sans); font-weight: 800; font-variant-numeric: tabular-nums; font-size: clamp(38px, 5.2vw, 84px); line-height: 0.85; letter-spacing: -0.025em; color: var(--paper); display: block; white-space: nowrap; }
+.num .v small { font-size: 0.42em; letter-spacing: 0; vertical-align: baseline; }
+.num .l { display: block; margin-top: 18px; font-family: var(--sans); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+.num .s { display: block; margin-top: 6px; font-family: var(--sans); font-size: 10px; letter-spacing: 0.1em; color: var(--dim); opacity: 0.75; }
+.num.lose .v { color: var(--lose); }
+.num.lose .l { color: color-mix(in srgb, var(--lose) 70%, var(--dim)); }
+.arrow { font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em; color: var(--dim); padding-bottom: clamp(40px, 7vw, 110px); user-select: none; }
+.num .stamp { font-family: var(--sans); font-size: 11px; letter-spacing: 0.22em; color: var(--lose); border: 1px solid var(--lose); padding: 6px 12px; display: inline-block; transform: rotate(-2deg); margin-bottom: 14px; }
+@media (max-width: 900px) {
+  .nums { grid-template-columns: 1fr; gap: 36px; }
+  .arrow { display: none; }
+  .num { border-left: 0; border-top: 1px solid var(--rule); padding: 24px 0 0; }
+  .num:first-child { border-top: 0; padding-top: 0; }
+}
+
+/* ---------- AUM bar strip (values always visible) ---------- */
+.bars { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: clamp(8px, 1.2vw, 18px); height: clamp(240px, 32vh, 340px); border-bottom: 1px solid var(--rule2); margin-top: clamp(48px, 8vh, 96px); }
+.barcell { display: flex; flex-direction: column; min-width: 0; }
+.barcell .bv { display: block; text-align: center; font-size: clamp(11px, 1vw, 13px); font-weight: 700; letter-spacing: 0.02em; color: var(--paper); font-variant-numeric: tabular-nums; margin-bottom: 8px; white-space: nowrap; }
+.barcell .barwrap { flex: 1 1 auto; display: flex; align-items: flex-end; min-height: 0; }
+.barcell .bar { width: 100%; background: #1B1F28; border: 1px solid var(--rule); border-bottom: 0; transform-origin: bottom; transform: scaleY(0.001); transition: transform 0.9s var(--ease), background 0.25s, border-color 0.25s; }
+.barcell:hover .bar { background: #2B3140; border-color: var(--rule2); }
+.barcell.peak .bar { background: #262C3A; border-color: var(--paper); }
+.barcell.peak .bv { color: var(--paper); }
+.barcell.sold { justify-content: flex-end; }
+.barcell.sold .barwrap { flex: 0 0 6px; }
+.barcell.sold .bar { height: 6px !important; background: var(--lose); border-color: var(--lose); transform: scaleY(1) !important; }
+.barcell.sold .bv { color: var(--lose); }
+.barcell .bl { margin-top: 10px; text-align: center; font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.barcell.sold .bl { color: var(--lose); }
+.bars.in .barcell .bar { transform: scaleY(1); }
+.bars.in .barcell:nth-child(1) .bar { transition-delay: 0s; }
+.bars.in .barcell:nth-child(2) .bar { transition-delay: 0.07s; }
+.bars.in .barcell:nth-child(3) .bar { transition-delay: 0.14s; }
+.bars.in .barcell:nth-child(4) .bar { transition-delay: 0.21s; }
+.bars.in .barcell:nth-child(5) .bar { transition-delay: 0.28s; }
+.bars.in .barcell:nth-child(6) .bar { transition-delay: 0.35s; }
+.bars.in .barcell:nth-child(7) .bar { transition-delay: 0.42s; }
+.bars.in .barcell:nth-child(8) .bar { transition-delay: 0.49s; }
+@media (prefers-reduced-motion: reduce) { .barcell .bar { transform: scaleY(1) !important; transition: none !important; } }
+@media (max-width: 600px) { .barcell .bv { font-size: 9.5px; letter-spacing: 0; } .bars { gap: 6px; } }
+
+/* ---------- data tables ---------- */
+.dtable { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.dtable th { font-family: var(--sans); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); font-weight: 400; text-align: left; padding: 10px 0 12px; border-bottom: 1px solid var(--rule2); overflow-wrap: anywhere; }
+.dtable td { padding: 14px 0; border-bottom: 1px solid var(--rule); font-family: var(--sans); font-size: 12.5px; letter-spacing: 0.03em; color: var(--body); vertical-align: top; overflow-wrap: break-word; }
+.dtable td.strong { color: var(--paper); }
+.dtable td.big { font-family: var(--sans); font-size: 20px; font-weight: 800; color: var(--paper); letter-spacing: 0; }
+.dtable tr:hover td { background: color-mix(in srgb, var(--paper) 3%, transparent); }
+.dtable .lose { color: var(--lose); }
+.dtable .src { color: var(--dim); }
+.dtable a { text-decoration: none; border-bottom: 1px solid var(--rule2); }
+.dtable a:hover { color: var(--paper); border-color: var(--paper); }
+@media (max-width: 720px) { .dtable td, .dtable th { padding: 10px 0; font-size: 11.5px; } .dtable td.big { font-size: 16px; } .dtable .col-cut { display: none; } }
+
+/* ---------- holdings composition ---------- */
+.hold-grid { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); gap: clamp(48px, 6vw, 110px); align-items: start; }
+.hold-grid > * { min-width: 0; }
+@media (max-width: 900px) { .hold-grid { grid-template-columns: 1fr; } }
+.compose { display: flex; flex-direction: column; gap: 32px; }
+.comp-row .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.comp-row .nm { font-family: var(--sans); font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper); }
+.comp-row .vv { font-family: var(--sans); font-size: 12px; color: var(--body); font-variant-numeric: tabular-nums; }
+.strip4 { display: flex; height: 10px; }
+.strip4 .seg { height: 100%; }
+.seg.memory  { background: var(--paper); }
+.seg.power   { background: #8C93A3; }
+.seg.neocloud{ background: #3E4655; }
+.seg.other   { background: #1E222B; border: 1px solid var(--rule); }
+.seg.hedge   { background: repeating-linear-gradient(-45deg, transparent 0 4px, color-mix(in srgb, var(--lose) 55%, transparent) 4px 8px); }
+.legend { display: flex; flex-wrap: wrap; gap: 18px 26px; margin-top: 26px; }
+.legend .li { display: flex; gap: 8px; align-items: center; font-family: var(--sans); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+.legend .sw { width: 14px; height: 10px; }
+
+/* ---------- prose ---------- */
+.prose { max-width: 62ch; }
+.prose p { margin-bottom: 22px; }
+.prose p:first-of-type::first-letter { font-family: var(--sans); font-weight: 600; font-size: 3.2em; float: left; line-height: 0.82; padding-right: 10px; color: var(--paper); }
+.pull { font-family: var(--sans); font-style: italic; font-size: clamp(22px, 2.6vw, 34px); line-height: 1.35; color: var(--paper); max-width: 24ch; margin-top: clamp(40px, 6vh, 72px); padding-left: clamp(20px, 3vw, 44px); border-left: 1px solid var(--rule2); }
+.pull .attr { display: block; margin-top: 16px; font-style: normal; font-family: var(--sans); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.cite { font-family: var(--sans); font-size: 10px; letter-spacing: 0.1em; color: var(--dim); }
+.cite a { color: inherit; border-bottom: 1px dotted var(--rule2); }
+.stamp-line { display: inline-block; margin-top: 22px; font-family: var(--sans); font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--lose); border: 1px solid var(--lose); padding: 8px 16px; transform: rotate(-1.5deg); }
+
+footer.colophon { padding: 28px var(--gutter) 44px; font-family: var(--sans); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); display: flex; flex-wrap: wrap; gap: 10px 32px; }
+
+[data-reveal] { opacity: 0; transform: translateY(26px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); }
+[data-reveal].in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { [data-reveal] { opacity: 1; transform: none; transition: none; } }
+
+/* ---------- scrubber ---------- */
+.scrub { position: relative; border-top: 1px solid var(--rule2); border-bottom: 1px solid var(--rule2); margin: clamp(40px, 6vh, 80px) 0; }
+.scrub .track { position: relative; height: clamp(180px, 28vh, 300px); }
+.scrub .ticks { position: absolute; inset: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+.tick { border-right: 1px solid var(--rule); position: relative; cursor: ew-resize; }
+.tick:last-child { border-right: 0; }
+.tick .tl { position: absolute; top: 100%; left: 8px; padding-top: 12px; font-family: var(--sans); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
+.tick .ta { position: absolute; bottom: 10px; left: 8px; right: 8px; font-family: var(--sans); font-size: 11px; color: var(--paper); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; }
+@media (max-width: 600px) { .tick .ta { display: none; } .track { min-height: 120px; } }
+.tick.on { background: color-mix(in srgb, var(--paper) 4%, transparent); }
+.tick.on .tl { color: var(--paper); }
+.flagline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--paper); pointer-events: none; transition: left 0.45s var(--ease); }
+.flagline.flip::before { left: auto; right: 8px; }
+.flagline::before { content: attr(data-cap); position: absolute; top: -26px; left: 8px; white-space: nowrap; font-family: var(--sans); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--paper); }
+.flagline.lose { background: var(--lose); }
+.flagline.lose::before { color: var(--lose); }
+.quarter-readout { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(40px, 5vw, 90px); align-items: start; margin-top: 40px; }
+@media (max-width: 900px) { .quarter-readout { grid-template-columns: 1fr; } }
+.quarter-readout .big { font-family: var(--sans); font-weight: 800; font-variant-numeric: tabular-nums; font-size: clamp(44px, 6vw, 96px); line-height: 0.9; letter-spacing: -0.02em; color: var(--paper); }
+.quarter-readout .big .u { font-size: 0.4em; color: var(--dim); }
+
+/* ---------- concentration bars ---------- */
+.conc { margin-top: 36px; }
+.conc-row { display: grid; grid-template-columns: 220px 1fr 120px; gap: 18px; align-items: baseline; padding: 13px 0; border-bottom: 1px solid var(--rule); }
+.conc-row .cn { font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--paper); }
+.conc-track { height: 8px; background: var(--ink2); position: relative; border: 1px solid var(--rule); }
+.conc-fill { position: absolute; inset: 0; right: auto; background: var(--paper); transform-origin: left; transform: scaleX(0.001); transition: transform 1s var(--ease); }
+.conc.in .conc-fill { transform: scaleX(1); }
+.conc-row .cv { font-family: var(--sans); font-size: 11px; color: var(--body); text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 720px) { .conc-row { grid-template-columns: 1fr 90px; } .conc-row .cn { grid-column: 1 / -1; } }
+
+/* ---------- verdict block ---------- */
+.verdict { border-top: 1px solid var(--rule2); border-bottom: 1px solid var(--rule2); background: var(--ink2); padding: clamp(56px, 8vh, 110px) var(--gutter); }
+.verdict .inner { max-width: 1480px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(40px, 5vw, 90px); align-items: start; }
+@media (max-width: 900px) { .verdict .inner { grid-template-columns: 1fr; } }
+
+/* ---------- 30-second ---------- */
+.sec30 { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--rule); margin-top: clamp(44px, 7vh, 80px); }
+.sec30 .cell { padding: clamp(20px, 2.6vw, 36px) clamp(18px, 2vw, 30px); border-right: 1px solid var(--rule); }
+.sec30 .cell:last-child { border-right: 0; }
+.sec30 .cl { font-family: var(--sans); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; }
+.sec30 .cv2 { font-family: var(--sans); font-weight: 800; font-size: clamp(22px, 2.6vw, 40px); color: var(--paper); line-height: 1; letter-spacing: -0.01em; }
+.sec30 .cv2 .lose { color: var(--lose); }
+.sec30 .cs { font-family: var(--sans); font-size: 10px; color: var(--dim); margin-top: 10px; letter-spacing: 0.08em; }
+@media (max-width: 900px) { .sec30 { grid-template-columns: 1fr 1fr; } .sec30 .cell:nth-child(2) { border-right: 0; } .sec30 .cell:nth-child(-n+2) { border-bottom: 1px solid var(--rule); } }
+@media (max-width: 560px) { .sec30 { grid-template-columns: 1fr; } .sec30 .cell { border-right: 0; border-bottom: 1px solid var(--rule); } .sec30 .cell:last-child { border-bottom: 0; } }
+
+/* ---------- spine ---------- */
+.spine { border-left: 1px solid var(--rule2); padding-left: clamp(28px, 4vw, 64px); margin-top: clamp(36px, 6vh, 72px); }
+.spine .ev { position: relative; padding-bottom: clamp(36px, 5vh, 64px); }
+.spine .ev::before { content: ""; position: absolute; left: calc(-1 * clamp(28px, 4vw, 64px) - 4.5px); top: 8px; width: 8px; height: 8px; background: var(--dim); }
+.spine .ev.hot::before { background: var(--lose); }
+.spine .ev .dt { font-family: var(--sans); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; }
+.spine .ev .tx { max-width: 58ch; }
+.spine .ev .tx strong { color: var(--paper); font-weight: 600; }
+
+/* ---------- sources ---------- */
+.src-row { display: grid; grid-template-columns: 1.6fr 1fr 0.7fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.src-row .claim { color: var(--body); font-size: 15.5px; }
+.src-row .claim b { color: var(--paper); font-weight: 600; }
+.src-row .who { font-family: var(--sans); font-size: 11px; letter-spacing: 0.08em; color: var(--dim); }
+.src-row .who a { border-bottom: 1px dotted var(--rule2); text-decoration: none; }
+.src-row .conf { font-family: var(--sans); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); text-align: right; }
+.src-row .conf.verified { color: var(--gain); }
+.src-row .conf.press { color: var(--paper); }
+.src-row .conf.unconfirmed { color: var(--lose); }
+@media (max-width: 820px) { .src-row { grid-template-columns: 1fr; gap: 6px; } .src-row .conf { text-align: left; } }
+
+/* ---------- landing hero ---------- */
+.hero { position: relative; min-height: min(94vh, 1000px); display: flex; align-items: flex-end; border-bottom: 1px solid var(--rule); overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; z-index: 0; }
+.hero-bg img { width: 100%; height: 112%; object-fit: cover; object-position: center 40%; opacity: 0.34; filter: saturate(0.55) contrast(1.06) brightness(0.9); will-change: transform; }
+.hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,12,14,0.62) 0%, rgba(11,12,14,0.78) 45%, rgba(11,12,14,0.97) 88%, #0B0C0E 100%); }
+.hero .inner { position: relative; z-index: 2; width: 100%; padding-top: clamp(110px, 16vh, 200px); padding-bottom: clamp(44px, 7vh, 84px); }
+.kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--dim); margin-bottom: clamp(22px, 3.5vh, 40px); }
+.hero-h { font-size: clamp(50px, 8.2vw, 142px); font-weight: 900; line-height: 0.95; letter-spacing: -0.035em; margin-bottom: clamp(24px, 4vh, 42px); max-width: 16ch; }
+.hero-sub { font-size: clamp(16.5px, 1.5vw, 20px); line-height: 1.7; color: var(--body); max-width: 72ch; margin-bottom: clamp(30px, 4.5vh, 48px); }
+.hero-sub strong { color: var(--paper); font-weight: 600; }
+.hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: clamp(40px, 6vh, 68px); }
+.btn { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); background: var(--paper); padding: 17px 30px; text-decoration: none; transition: transform 0.2s var(--ease), background 0.2s; }
+.btn:hover { background: #FFFFFF; transform: translateY(-2px); color: var(--ink); }
+.btn.ghost { background: transparent; color: var(--paper); border: 1px solid var(--rule2); }
+.btn.ghost:hover { border-color: var(--paper); background: rgba(232,228,217,0.07); transform: translateY(-2px); color: var(--paper); }
+.hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.hs { background: rgba(11,12,14,0.78); padding: clamp(16px, 2.2vw, 28px); transition: background 0.25s; }
+.hs:hover { background: rgba(20,22,27,0.92); }
+.hs .v { display: block; font-size: clamp(26px, 3vw, 46px); font-weight: 800; letter-spacing: -0.02em; color: var(--paper); font-variant-numeric: tabular-nums; line-height: 1; }
+.hs .v.lose { color: var(--lose); }
+.hs .l { display: block; margin-top: 10px; font-size: 10.5px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); line-height: 1.5; }
+.credit { margin-top: 16px; font-size: 9.5px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); opacity: 0.85; }
+.scrollcue { position: absolute; right: var(--gutter); bottom: 26px; z-index: 2; color: var(--dim); font-size: 20px; text-decoration: none; animation: bob 2.4s var(--ease) infinite; }
+.scrollcue:hover { color: var(--paper); }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(9px); } }
+@media (prefers-reduced-motion: reduce) { .scrollcue { animation: none; } }
+@media (max-width: 900px) { .hero-stats { grid-template-columns: 1fr 1fr; } .hero { min-height: 0; } }
+@media (max-width: 560px) { .hero-stats { grid-template-columns: 1fr; } }
+
+/* ---------- scroll progress ---------- */
+.progress { position: fixed; top: 0; left: 0; height: 2px; width: 0; background: var(--lose); z-index: 100; pointer-events: none; }
+
+/* ---------- figures (real photography) ---------- */
+.figure { margin: clamp(44px, 6vh, 76px) 0 0; border: 1px solid var(--rule); background: var(--ink2); overflow: hidden; }
+.figure img { display: block; width: 100%; height: auto; max-height: 560px; object-fit: cover; filter: saturate(0.72) contrast(1.05) brightness(0.88); transition: filter 0.5s var(--ease), transform 6s var(--ease); }
+.figure:hover img { filter: saturate(0.95) contrast(1.05) brightness(0.98); transform: scale(1.025); }
+.figure figcaption { padding: 13px var(--gutter); font-size: 10px; font-weight: 500; letter-spacing: 0.13em; text-transform: uppercase; color: var(--dim); border-top: 1px solid var(--rule); line-height: 1.7; }
+.figure figcaption b { color: var(--body); font-weight: 600; }
+
+/* ---------- explainer boxes ---------- */
+.explain { border: 1px solid var(--rule2); background: var(--ink3); padding: clamp(26px, 3.4vw, 48px); margin-top: clamp(40px, 6vh, 72px); }
+.explain .klabel { margin-bottom: 24px; }
+.explain dl { display: grid; grid-template-columns: 210px 1fr; gap: 14px 28px; }
+.explain dt { font-size: 12.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper); padding-top: 2px; }
+.explain dd { margin: 0; font-size: 15.5px; line-height: 1.7; color: var(--body); }
+.explain dd b { color: var(--paper); font-weight: 600; }
+@media (max-width: 760px) { .explain dl { grid-template-columns: 1fr; gap: 4px 0; } .explain dd { margin-bottom: 16px; } }
+
+/* ---------- white stat sheets (paper on the dark desk) ---------- */
+.desk { display: flex; justify-content: center; align-items: flex-start; flex-wrap: wrap; padding: clamp(20px, 4vh, 60px) var(--gutter) clamp(40px, 6vh, 80px); }
+.sheet {
+  background: #EDEAE0; color: #191B20; width: min(370px, 88vw);
+  padding: 26px 28px 28px; position: relative;
+  box-shadow: 14px 16px 0 rgba(0, 0, 0, 0.5);
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), opacity 0.7s var(--ease);
+  margin: 14px clamp(-12px, -0.8vw, -8px);
+}
+.sheet[data-reveal] { transform: rotate(var(--tilt, -1.4deg)) translateY(26px); opacity: 0; }
+.sheet[data-reveal].in { transform: rotate(var(--tilt, -1.4deg)); opacity: 1; }
+.sheet:hover, .sheet[data-reveal].in:hover { transform: rotate(0deg) translateY(-10px); box-shadow: 20px 26px 0 rgba(0, 0, 0, 0.55); z-index: 6; }
+.sheet .sh { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #191B20; padding-bottom: 10px; margin-bottom: 18px; }
+.sheet .sh b { font-size: 11px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; }
+.sheet .sh span { font-size: 9.5px; font-weight: 600; letter-spacing: 0.1em; color: #6B6E76; text-transform: uppercase; }
+.sheet .row { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid #D9D5C9; font-size: 13px; }
+.sheet .row:last-child { border-bottom: 0; }
+.sheet .row b { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sheet .big { font-size: clamp(26px, 2.4vw, 34px); font-weight: 900; letter-spacing: -0.02em; margin: 2px 0; font-variant-numeric: tabular-nums; }
+.sheet .cap { font-size: 10px; font-weight: 500; letter-spacing: 0.11em; text-transform: uppercase; color: #6B6E76; margin-top: 14px; line-height: 1.75; }
+.sheet .stamp2 { position: absolute; top: 16px; right: 18px; transform: rotate(7deg); border: 2px solid #C0391F; color: #C0391F; font-size: 9px; font-weight: 800; letter-spacing: 0.22em; padding: 4px 9px; text-transform: uppercase; background: rgba(192,57,31,0.05); }
+.sheet.red .big { color: #C0391F; }
+@media (max-width: 900px) { .sheet { margin: 14px auto; } .sheet + .sheet { margin-left: auto; } }
+
+/* ---------- hero v3: split layout, trust bar, visual cluster ---------- */
+.hero .inner { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(40px, 5vw, 90px); align-items: end; }
+.hero-copy { padding-bottom: clamp(8px, 2vh, 20px); }
+.hero-h .hl { color: var(--lose); }
+.hero-visual { position: relative; display: flex; flex-direction: column; align-items: center; gap: 22px; padding-bottom: clamp(8px, 2vh, 24px); }
+.polaroid { background: #EDEAE0; padding: 12px 12px 16px; transform: rotate(2.2deg); box-shadow: 16px 18px 0 rgba(0,0,0,0.5); width: min(400px, 100%); transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease); }
+.polaroid:hover { transform: rotate(0.4deg) translateY(-8px); box-shadow: 22px 26px 0 rgba(0,0,0,0.55); }
+.polaroid img { display: block; width: 100%; height: auto; filter: saturate(0.85) contrast(1.04); }
+.polaroid figcaption { padding-top: 12px; color: #191B20; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.polaroid figcaption span { display: block; margin-top: 4px; color: #6B6E76; font-weight: 500; font-size: 9.5px; }
+.mini-sheet { background: #EDEAE0; color: #191B20; padding: 18px 22px 16px; transform: rotate(-1.6deg); box-shadow: 12px 14px 0 rgba(0,0,0,0.5); width: min(400px, 100%); }
+.mini-sheet .ms-h { display: flex; justify-content: space-between; font-size: 9.5px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; border-bottom: 2px solid #191B20; padding-bottom: 8px; margin-bottom: 12px; }
+.mini-sheet svg { display: block; width: 100%; height: auto; }
+.mini-sheet .ms-f { display: flex; justify-content: space-between; margin-top: 10px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: #6B6E76; text-transform: uppercase; }
+.spark-line { fill: none; stroke: #191B20; stroke-width: 3; }
+.spark-lost { fill: none; stroke: #C0391F; stroke-width: 3; stroke-dasharray: 5 5; }
+.hero-stats, .credit { grid-column: 1 / -1; }
+.spark-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: drawline 1.5s var(--ease) 0.5s both; }
+.spark-lost { stroke-dasharray: 1; stroke-dashoffset: 1; animation: drawline 0.5s linear 2.1s both; }
+@keyframes drawline { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .spark-line, .spark-lost { animation: none; stroke-dashoffset: 0; } }
+.trustbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px 34px; align-items: center; border-top: 1px solid var(--rule2); margin-top: clamp(30px, 4vh, 48px); padding-top: 18px; }
+.trustbar .t { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); }
+.trustbar .t b { color: var(--body); font-weight: 700; }
+@media (max-width: 980px) { .hero .inner { grid-template-columns: 1fr; } .hero-visual { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; } .polaroid, .mini-sheet { width: min(340px, 100%); } }
+
+/* ---------- room headers: ghost numeral + h2 title scale ---------- */
+.room-head { position: relative; }
+.ghost-num {
+  position: absolute; right: 0; top: clamp(-30px, -2vw, -10px);
+  font-size: clamp(120px, 16vw, 260px); font-weight: 900; line-height: 0.8;
+  color: transparent; -webkit-text-stroke: 1px var(--rule2);
+  pointer-events: none; user-select: none; letter-spacing: -0.04em;
+}
+.room-title {
+  font-family: var(--sans); font-weight: 900; font-size: clamp(38px, 5.6vw, 92px); line-height: 0.96;
+  letter-spacing: -0.03em; text-transform: uppercase; color: var(--paper);
+  margin-bottom: clamp(24px, 4vh, 48px); max-width: 22ch; position: relative;
+}
+.room-title .sub { color: var(--dim); }
+
+/* ---------- figure pair ---------- */
+.figpair { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(16px, 2vw, 28px); margin: clamp(44px, 6vh, 76px) 0 0; }
+.figpair .figure { margin: 0; }
+@media (max-width: 820px) { .figpair { grid-template-columns: 1fr; } }
+
+/* ---------- white chart panels ---------- */
+.panel { background: #EDEAE0; color: #191B20; padding: clamp(28px, 3.4vw, 52px); box-shadow: 16px 18px 0 rgba(0,0,0,0.45); margin: clamp(44px, 6vh, 76px) 0 0; }
+.panel .p-h { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #191B20; padding-bottom: 12px; margin-bottom: 26px; }
+.panel .p-h b { font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; }
+.panel .p-h span { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: #6B6E76; text-transform: uppercase; }
+.panel .p-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); gap: clamp(28px, 4vw, 64px); align-items: center; }
+@media (max-width: 860px) { .panel .p-grid { grid-template-columns: 1fr; } }
+.panel .p-note { font-size: 14.5px; line-height: 1.75; color: #3C3F46; }
+.panel .p-note b { color: #191B20; font-weight: 700; }
+
+/* donut */
+.donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.donut { position: relative; width: min(300px, 70vw); }
+.donut svg { display: block; width: 100%; height: auto; transform: rotate(-90deg); }
+.donut circle { fill: none; stroke-width: 34; transition: stroke-dasharray 1.1s var(--ease), stroke-width 0.25s var(--ease), opacity 0.25s; cursor: pointer; }
+.donut:hover circle { opacity: 0.35; }
+.donut circle:hover { opacity: 1; stroke-width: 40; }
+.donut .d-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none; }
+.donut .d-label .dv { font-size: clamp(26px, 2.6vw, 38px); font-weight: 900; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.donut .d-label .dl { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6B6E76; margin-top: 4px; max-width: 20ch; }
+.dlegend { display: flex; flex-direction: column; gap: 2px; width: 100%; }
+.dlegend .li { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-bottom: 1px solid #D9D5C9; font-size: 12.5px; cursor: pointer; transition: background 0.2s; }
+.dlegend .li:hover { background: rgba(25,27,32,0.05); }
+.dlegend .sw { width: 14px; height: 14px; flex: 0 0 auto; }
+.dlegend .nm { font-weight: 600; }
+.dlegend .vv { margin-left: auto; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* leverage slider */
+.lvl-slider { width: 100%; appearance: none; -webkit-appearance: none; height: 4px; background: #191B20; outline: none; margin: 18px 0 8px; cursor: ew-resize; }
+.lvl-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; background: #191B20; border: 3px solid #EDEAE0; box-shadow: 0 0 0 2px #191B20; cursor: ew-resize; }
+.lvl-slider::-moz-range-thumb { width: 22px; height: 22px; background: #191B20; border: 3px solid #EDEAE0; box-shadow: 0 0 0 2px #191B20; border-radius: 0; cursor: ew-resize; }
+.lvl-bars { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.lvl-row { display: grid; grid-template-columns: 130px 1fr 86px; gap: 14px; align-items: center; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.lvl-track { height: 26px; background: #D9D5C9; position: relative; }
+.lvl-fill { position: absolute; inset: 0; right: auto; transition: width 0.15s linear; }
+.lvl-fill.borrowed { background: #9AA3B0; }
+.lvl-fill.equity { background: #191B20; }
+.lvl-fill.equity.warn { background: #C0391F; }
+.lvl-val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 800; }
+.lvl-status { border: 2px solid #191B20; padding: 14px 18px; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; transition: all 0.2s; }
+.lvl-status.warn { border-color: #C0391F; color: #C0391F; }
+.lvl-status.fail { background: #C0391F; border-color: #C0391F; color: #EDEAE0; }
+
+/* ---------- case-closed stamp seal ---------- */
+.verdict-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(40px, 5vw, 90px); align-items: start; }
+@media (max-width: 900px) { .verdict-grid { grid-template-columns: 1fr; } }
+.seal-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.seal { width: min(230px, 60vw); transform: rotate(-8deg); opacity: 0.94; }
+[data-reveal].in .seal { animation: stampIn 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+@keyframes stampIn { 0% { transform: scale(1.9) rotate(-24deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1) rotate(-8deg); opacity: 0.94; } }
+@media (prefers-reduced-motion: reduce) { .seal, [data-reveal].in .seal { animation: none; transform: rotate(-8deg); opacity: 0.94; } }
+</style>
+</head>
+<body>
+<!-- CONTRACT (seed bf72df90, index 3)
+THESIS: a hedge-fund autopsy rendered as a precisionist plate — flat planes, one raking light, stenciled numerals.
+OWN-WORLD: ink #0B0C0E ground; paper #E8E4D9 display; body #A09A8C; slate #9AA3B0 state; signal red #D6492F = loss only;
+condensed grotesk numerals, Charter serif prose, mono for measurement; hard 1px rules, zero shadows/radius, no glass/gradient.
+STORY: one continuous document — the fund, the build, the July sale, the buyer's exit, what the record shows survives —
+then the reader can open each EDGAR filing directly.
+FORM: precisionist-industrial-plate donor + fixed-pitch scrubber + stenciled-numeral hero.
+-->
+
+<div class="chrome" role="banner">
+  <div class="filestrip">
+    <span class="cell"><strong style="color:var(--paper)">FILE</strong>&nbsp; SA-001</span>
+    <span class="cell">SUBJECT&nbsp; SITUATIONAL AWARENESS LP · CIK 0002045724</span>
+    <span class="cell">STATUS&nbsp; <span class="flag">BOOK DISPOSED</span></span>
+    <span class="cell hide-sm">SOURCE&nbsp; SEC EDGAR + PRESS</span>
+    <span class="cell hide-sm">COMPILED&nbsp; 2026-08-23</span>
+  </div>
+  <nav class="rooms" aria-label="Rooms">
+    <a href="#room-1"><span class="n">01</span>The case</a>
+    <a href="#room-2"><span class="n">02</span>The story</a>
+    <a href="#room-3"><span class="n">03</span>The numbers</a>
+    <a href="#room-4"><span class="n">04</span>The record</a>
+    <a href="#room-5"><span class="n">05</span>Sources</a>
+  </nav>
+</div>
+
+<main>
+
+<!-- ============ ROOM 1 — THE CASE ============ -->
+<section class="room" id="room-1">
+  <header class="hero">
+    <div class="hero-bg"><img src="assets/img/dc-hero.jpg" alt="Rows of server racks inside a commercial data center — the physical infrastructure the fund's thesis rode on" loading="eager"></div>
+    <div class="inner">
+      <div class="hero-copy">
+        <p class="kicker">CASE FILE SA-001 &nbsp;·&nbsp; THE COMPLETE POST-MORTEM &nbsp;·&nbsp; COMPILED 23·08·2026</p>
+        <h1 class="hero-h">Situational Awareness:<br>the <span class="hl">$45B</span> bet that broke in a week</h1>
+        <p class="hero-sub">Situational Awareness was the fastest hedge fund the AI trade ever built — a 24-year-old ex-OpenAI researcher raising billions on a bet that memory chips, power plants and neocloud data centers would decide the supercycle. For six quarters the bet paid: <strong>the public book grew from $254.8&nbsp;million to $20.24&nbsp;billion</strong>. Then the trade reversed, the margin calls landed, and the whole portfolio was sold to Citadel at a discount in a single July week. This page reconstructs the entire arc — quarter by quarter, filing by filing — from the fund's own SEC paperwork and the reporting that followed it.</p>
+        <div class="hero-cta">
+          <a class="btn" href="#room-2">Read the full story</a>
+          <a class="btn ghost" href="#room-4">Open the SEC filings</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <figure class="polaroid">
+          <img src="assets/img/aschenbrenner.jpg" alt="Leopold Aschenbrenner, founder of Situational Awareness — press photograph" loading="eager">
+          <figcaption>Leopold Aschenbrenner — founder, 24<span>Press photo via AsiaOne, July 2026 · the only widely published portrait</span></figcaption>
+        </figure>
+        <div class="mini-sheet">
+          <div class="ms-h"><span>The book, six quarters</span><span>13F gross</span></div>
+          <svg viewBox="0 0 360 122" role="img" aria-label="Line rising from 254.8 million to 20.24 billion across seven quarters, then dropping off the edge">
+            <line x1="14" y1="114" x2="346" y2="114" stroke="#D9D5C9" stroke-width="1"/>
+            <polyline class="spark-line" pathLength="1" points="20,103 73,91 126,80 179,66 232,59 285,27 338,7"/>
+            <polyline class="spark-lost" pathLength="1" points="338,7 350,112"/>
+            <circle cx="338" cy="7" r="4" fill="#191B20"/>
+          </svg>
+          <div class="ms-f"><span>12·24 → 06·26</span><span>$254.8M → $20.24B</span></div>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hs"><span class="v" data-count="45" data-prefix="≈$" data-suffix="B">≈$45B</span><span class="l">Peak fund size — press figure, unconfirmed</span></div>
+        <div class="hs"><span class="v lose" data-count="67" data-prefix="−" data-suffix="%">−67%</span><span class="l">Equity lost in July 2026 — press estimate</span></div>
+        <div class="hs"><span class="v" data-count="20.24" data-decimals="2" data-prefix="$" data-suffix="B">$20.24B</span><span class="l">Final 13F book, 30 Jun 2026 — verified</span></div>
+        <div class="hs"><span class="v lose" data-count="80" data-prefix="&gt;" data-suffix="%">&gt;80%</span><span class="l">Of that risk unwound within 3 weeks</span></div>
+      </div>
+      <div class="trustbar">
+        <span class="t"><b>SEC EDGAR</b> · 23 filings read</span>
+        <span class="t"><b>REUTERS</b> · the sale, the unwind</span>
+        <span class="t"><b>CNBC</b> · the July collapse</span>
+        <span class="t"><b>JPMORGAN</b> · category data</span>
+        <span class="t"><b>4 CIKs</b> · 0 dissolution forms</span>
+      </div>
+      <p class="credit">PHOTO: DATA-CENTER AISLES — BALTICSERVERS.COM VIA WIKIMEDIA COMMONS · CC BY-SA 3.0 · FOUNDER PHOTO VIA ASIAONE</p>
+    </div>
+    <a class="scrollcue" href="#sec30" aria-label="Scroll to the 30-second version">↓</a>
+  </header>
+
+  <section class="band tight">
+    <div class="inner">
+      <p class="klabel">The arc, in one chart — public book by quarter, gross 13F values</p>
+
+      <div class="nums" data-reveal>
+        <div class="num">
+          <span class="v">≈$45<small>B</small></span>
+          <span class="l">Full fund, at peak (incl. private + leverage)</span>
+          <span class="s">press, July 2026 · variants $45B–$57B — unconfirmed exact</span>
+        </div>
+        <span class="arrow">—→</span>
+        <div class="num lose">
+          <span class="v">−67<small>%</small></span>
+          <span class="l">Equity lost in July 2026</span>
+          <span class="s">press estimate · worst month on record for the category (JPMorgan via press)</span>
+        </div>
+        <span class="arrow">—→</span>
+        <div class="num">
+          <span class="stamp">SOLD 30·07·2026</span>
+          <span class="v">$20.24<small>B</small></span>
+          <span class="l">Final 13F public book (period 2026-06-30)</span>
+          <span class="s">SEC EDGAR · accession 0000935836-26-000418 · 26 positions</span>
+        </div>
+      </div>
+
+      <div class="bars" aria-label="Public book (13F gross) by quarter, December 2024 to August 2026">
+        <div class="barcell"><span class="bv">$254.8M</span><div class="barwrap"><div class="bar" data-h="11.3%"></div></div><span class="bl">12·24</span></div>
+        <div class="barcell"><span class="bv">$1.01B</span><div class="barwrap"><div class="bar" data-h="22.3%"></div></div><span class="bl">03·25</span></div>
+        <div class="barcell"><span class="bv">$2.12B</span><div class="barwrap"><div class="bar" data-h="32.4%"></div></div><span class="bl">06·25</span></div>
+        <div class="barcell"><span class="bv">$4.14B</span><div class="barwrap"><div class="bar" data-h="45.3%"></div></div><span class="bl">09·25</span></div>
+        <div class="barcell"><span class="bv">$5.52B</span><div class="barwrap"><div class="bar" data-h="52.3%"></div></div><span class="bl">12·25</span></div>
+        <div class="barcell"><span class="bv">$13.68B</span><div class="barwrap"><div class="bar" data-h="82.2%"></div></div><span class="bl">03·26</span></div>
+        <div class="barcell peak"><span class="bv">$20.24B</span><div class="barwrap"><div class="bar" data-h="100%"></div></div><span class="bl">06·26</span></div>
+        <div class="barcell sold"><span class="bv">GONE</span><div class="barwrap"><div class="bar"></div></div><span class="bl">07·26</span></div>
+      </div>
+      <p class="rule-note" style="margin-top:14px">Every value is printed on its bar — hover only highlights. Heights use a square-root scale so the early quarters stay readable; on a true linear scale the first bar would be one pixel tall. Values are the filing's own: gross 13F market value at each quarter-end, SEC EDGAR, CIK 0002045724. The red mark is 07·26: the quarter that never got a filing, because the book was sold.</p>
+    </div>
+  </section>
+
+  <section class="band tight" style="border-bottom:0">
+    <div class="inner">
+      <p class="klabel">The paperwork, on the desk — three sheets that carry the whole case</p>
+    </div>
+    <div class="desk">
+      <div class="sheet" data-reveal style="--tilt:-1.8deg">
+        <div class="sh"><b>13F-HR · Excerpt</b><span>as filed</span></div>
+        <div class="stamp2">Filed 14·08·26</div>
+        <p class="cap" style="margin:0 0 8px">Total market value, period ending</p>
+        <div class="big">$20,242,292,228</div>
+        <p class="cap" style="margin-top:6px">26 positions · quarter ended 30 Jun 2026 · CIK 0002045724</p>
+        <div style="margin-top:16px">
+          <div class="row"><span>1 · SanDisk</span><b>$5,674M</b></div>
+          <div class="row"><span>2 · Micron</span><b>$5,574M</b></div>
+          <div class="row"><span>3 · Bloom Energy</span><b>$1,899M</b></div>
+          <div class="row"><span>Remaining 23 names</span><b>$7,095M</b></div>
+        </div>
+        <p class="cap">Source: SEC EDGAR accession 0000935836-26-000418 — the fund's own filing, reproduced as filed. This sheet is the verified spine of the case.</p>
+      </div>
+      <div class="sheet red" data-reveal style="--tilt:1.1deg">
+        <div class="sh"><b>The July Ledger</b><span>unofficial</span></div>
+        <div class="stamp2">Press-sourced</div>
+        <p class="cap" style="margin:0 0 8px">Equity lost, July 2026</p>
+        <div class="big">−67%</div>
+        <div style="margin-top:16px">
+          <div class="row"><span>Public book sold to Citadel</span><b>30·07·26</b></div>
+          <div class="row"><span>Terms, per sources</span><b>at a discount</b></div>
+          <div class="row"><span>Buyer's risk unwound</span><b>&gt;80% / 3 wks</b></div>
+          <div class="row"><span>Tech hedge funds, July (JPMorgan)</span><b>−10.2%</b></div>
+        </div>
+        <p class="cap">No filing records July — 13Fs cannot. These numbers come from Reuters, CNBC and JPMorgan via press: the strongest evidence that exists, and it is still not a filing.</p>
+      </div>
+      <div class="sheet" data-reveal style="--tilt:-0.6deg">
+        <div class="sh"><b>Claim audit</b><span>23·08·26</span></div>
+        <p class="cap" style="margin:0 0 8px">What the record actually supports</p>
+        <div class="big">5 · 8 · 3</div>
+        <div style="margin-top:16px">
+          <div class="row"><span>Claims verified in EDGAR primary documents</span><b>5</b></div>
+          <div class="row"><span>Claims sourced to named press outlets</span><b>8</b></div>
+          <div class="row"><span>Claims unconfirmed — kept as ranges</span><b>3</b></div>
+          <div class="row"><span>Dissolution or liquidation forms found</span><b>0</b></div>
+        </div>
+        <p class="cap">Every claim on this page carries its confidence tier in Room 05. Unconfirmed figures never enter the arithmetic — the ≈$45B headline included.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="sec30">
+    <div class="inner">
+      <p class="klabel">The 30-second version</p>
+      <div class="sec30">
+        <div class="cell" data-reveal><div class="cl">Manager</div><div class="cv2">L. Ashenbrenner</div><div class="cs">ex-OpenAI · 24 · “Nostradamus of AI” (AsiaOne)</div></div>
+        <div class="cell" data-reveal><div class="cl">Growth, 6 quarters</div><div class="cv2">≈79×</div><div class="cs">$254.8M → $20.24B · 13F gross</div></div>
+        <div class="cell" data-reveal><div class="cl">Concentration at peak</div><div class="cv2">55.6%</div><div class="cs">SanDisk + Micron · one theme: memory</div></div>
+        <div class="cell" data-reveal><div class="cl">Buyer's hold on the book</div><div class="cv2">&lt;3 <span class="lose">weeks</span></div><div class="cs">Citadel unwound &gt;80% of the risk · Griffin letter, 21·08·26</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(40px,5vw,90px);margin-top:clamp(56px,8vh,100px);align-items:start">
+        <div class="prose" data-reveal>
+          <h2 style="margin-bottom:24px">What this is</h2>
+          <p>One continuous post-mortem, in five rooms. The story is told quarter by quarter from the fund's own 13F-HR filings;
+          the numbers room lets you scrub the book's life in one gesture; the record room lists every filing with
+          its accessions, so each number opens to its primary document; the sources room assigns a confidence
+          level to every claim — <em>verified</em> where EDGAR says it, <em>press</em> where a newsroom does,
+          and <em>unconfirmed</em> where neither can.</p>
+          <p>The honest conclusion is written into the record and refused nowhere: <mark>the legal entity is not
+          dead</mark> — it filed its final 13F in August 2026 and holds a 19.9%-capped position in SharonAI Holdings. What
+          ceased was the <em>fund</em>: the book, the leverage, the marks, the $45B. The shell remains a filing
+          obligation, which is not the same as a portfolio.</p>
+        </div>
+        <div data-reveal>
+          <div style="border:1px solid var(--rule);padding:clamp(24px,3vw,40px);margin-bottom:20px">
+            <p class="klabel" style="margin-bottom:18px">Scope of the record</p>
+            <p style="font-size:15px;margin-bottom:14px">7 × 13F-HR &nbsp;·&nbsp; 6 × 13D/13G &nbsp;·&nbsp; 8 × Form D/D-A &nbsp;·&nbsp; 2 × Form 3/4</p>
+            <p style="font-size:15px;margin-bottom:18px">4 CIKs &nbsp;·&nbsp; 2024-12 → 2026-08 &nbsp;·&nbsp; <span><strong style="color:var(--paper)">0</strong> dissolution or de-registration forms</span></p>
+            <a href="#room-4" style="font-family:var(--sans);font-size:12px;letter-spacing:0.14em;text-transform:uppercase;border-bottom:1px solid var(--rule2);padding-bottom:4px">Open the record room →</a>
+          </div>
+          <div style="border:1px solid var(--rule);padding:clamp(24px,3vw,40px)">
+            <p class="klabel" style="margin-bottom:18px">What was not found</p>
+            <p style="font-size:15px">No enforcement action, no bankruptcy, no liquidation notice, no “cease of
+            operations” form for any of the four CIKs — in EDGAR, as of 23 August 2026. The absence is part of
+            the finding.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="verdict">
+    <div class="inner">
+      <div class="seal-wrap">
+        <p class="klabel" style="margin-bottom:6px">Finding — 23·08·2026</p>
+        <svg class="seal" viewBox="0 0 200 200" role="img" aria-label="Red ink stamp reading: Case closed, SA-001, book disposed, 23 August 2026">
+          <circle cx="100" cy="100" r="93" fill="none" stroke="#D6492F" stroke-width="5"/>
+          <circle cx="100" cy="100" r="71" fill="none" stroke="#D6492F" stroke-width="2"/>
+          <path id="sealArc" d="M 100,100 m -82,0 a 82,82 0 1,1 164,0 a 82,82 0 1,1 -164,0" fill="none"/>
+          <text font-size="15" letter-spacing="4" fill="#D6492F" font-weight="800" font-family="Inter, system-ui, sans-serif"><textPath href="#sealArc">CASE CLOSED · SA-001 · BOOK DISPOSED ·</textPath></text>
+          <text x="100" y="93" text-anchor="middle" font-size="30" font-weight="900" fill="#D6492F" font-family="Inter, system-ui, sans-serif" letter-spacing="1">23·08</text>
+          <text x="100" y="116" text-anchor="middle" font-size="14" font-weight="800" fill="#D6492F" font-family="Inter, system-ui, sans-serif" letter-spacing="3">2026</text>
+          <text x="100" y="138" text-anchor="middle" font-size="8.5" font-weight="700" fill="#D6492F" font-family="Inter, system-ui, sans-serif" letter-spacing="2.5">FINDING FINAL</text>
+        </svg>
+        <div class="stamp-line">Case closed on the book</div>
+      </div>
+      <div>
+        <h2 style="margin-bottom:20px">The $45B fund ceased.<br>The firm did not.</h2>
+        <p class="lead" style="font-size:clamp(17px,1.5vw,20px)">The public portfolio was sold under pressure on 30&nbsp;July&nbsp;2026 and its buyer
+        discarded &gt;80% of the risk inside three weeks; the equity was largely lost with the marks. What remains
+        in the official record is a Delaware LP that still files, a private Anthropic stake reported by the press,
+        and a manager still deploying capital. Read the rooms.</p>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ ROOM 2 — THE STORY ============ -->
+<section class="room" id="room-2">
+  <header class="band room-head">
+    <div class="inner">
+      <span class="ghost-num" aria-hidden="true">02</span>
+      <p class="klabel">Room 02 — The story, quarter by quarter</p>
+      <h2 class="room-title">Five rooms.<br><span class="sub">One book.</span></h2>
+      <p class="lead" data-reveal>Told in the order the evidence allows it: the man, the build, the week of July,
+      the buyer, and what the record shows remains. Every sentence that touches a number carries its source;
+      every claim the filing cannot settle is tagged <em>press</em> or <em>unconfirmed</em> — same tags you'll
+      find in the sources room.</p>
+    </div>
+  </header>
+
+  <!-- 1 · THE MAN -->
+  <section class="band lit">
+    <div class="inner">
+      <p class="klabel">I — The man</p>
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:clamp(40px,5vw,90px);align-items:start">
+        <div class="prose" data-reveal>
+          <p><strong style="color:var(--paper)">Leopold Aschenbrenner</strong> — born roughly 2002, twenty-four
+          in 2026 — was a researcher at OpenAI before publishing the <em>18-Month AI Intelligence Plan</em> in 2021
+          (press; AsiaOne). The same press that named him “Nostradamus of AI” later described the fund he built on
+          that thesis: a concentrated, leveraged long book in the physical stack of the AI supercycle — memory
+          chips, power plants, and the cloud providers wiring them together
+          <span class="cite">— AsiaOne, ~2026-07-09; press consensus, dossier §5 [press-sourced]</span>.</p>
+          <p>The strategy as the public record legibly states it: borrow against equities, concentrate the longs
+          in a handful of AI/semiconductor/memory names, and trade the options overlay with the market — long
+          calls on Intel and CoreWeave when the tape cooperated (2025-12-31: $746.8M and $774.4M respectively),
+          a put book on the semi leaders and a $2.0B VanEck Semiconductor ETF put when it stopped
+          <span class="cite">— SEC EDGAR, 13F-HR infoTables, periods 2025-12-31 / 2026-03-31 [verified]</span>.</p>
+          <p>Full-fund size is one of the few open figures: the press places it at ≈$45B including a private
+          Anthropic stake and leverage, with variants up to $57B by outlet
+          <span class="cite">— press, July 2026 [unconfirmed-exact]</span>.</p>
+        </div>
+        <div data-reveal>
+          <h3 style="margin-bottom:18px">The vehicle, as EDGAR sees it</h3>
+          <div style="border-top:1px solid var(--rule2);font-size:12px;line-height:2.1">
+            <div><strong style="color:var(--paper)">SA LP</strong> — CIK 0002045724 · DE <span class="src">13F · 13D/G · F3/4</span></div>
+            <div><strong style="color:var(--paper)">SA Partners LP</strong> — CIK 0002038540 · DE <span class="src">D + 3×D/A</span></div>
+            <div><strong style="color:var(--paper)">SA Offshore LP</strong> — CIK 0002048430 · Cayman <span class="src">3×D/A</span></div>
+            <div><strong style="color:var(--paper)">SA LP Nov 2024 (CGF2021)</strong> — CIK 0002047424 · DE <span class="src">Form D</span></div>
+          </div>
+          <p style="margin-top:16px;font-size:14px" class="src">77 Federal Street, 4th Floor, San Francisco · LEI 254900Q1483NSNRJ0W04 · co-PM Carl Shulman reported at the 13D/A cover [unconfirmed-role]. <a href="#room-4" style="border-bottom:1px solid var(--rule2)">Record room — filings</a></p>
+        </div>
+      </div>
+
+      <div class="explain" data-reveal>
+        <p class="klabel">Explained — the three words this case turns on</p>
+        <dl>
+          <dt>Hedge fund</dt>
+          <dd>A private investment pool open only to institutions and wealthy individuals, and — crucially — <b>largely exempt from the disclosure rules that govern mutual funds</b>. Nobody forces a hedge fund to tell you what it owns. The public only sees a hedge fund through the narrow keyholes this page uses: quarterly 13F filings, block-position filings, and whatever the press can confirm.</dd>
+          <dt>Leverage</dt>
+          <dd>Investing with borrowed money. If you hold $1 and borrow $4, a 10% gain on the position earns 50% on your dollar — and a 10% loss erases half of it. Leverage is why the fund could report a $20&nbsp;billion book without anything like $20&nbsp;billion of investor money, and it is the single mechanical reason the July collapse was so fast.</dd>
+          <dt>Margin call</dt>
+          <dd>The broker's demand to post more collateral when the value of a leveraged position falls. If the investor cannot pay, the broker <b>sells the positions at whatever price the market offers</b> to recover the loan. Forced selling begets further price falls, which trigger more calls — the cascade that emptied this book in days.</dd>
+        </dl>
+      </div>
+
+      <figure class="figure" data-reveal>
+        <img src="assets/img/superhall.jpg" alt="A supercomputer hall — rows of compute cabinets under raking industrial light" loading="lazy">
+        <figcaption><b>The physical bet.</b> The fund's thesis was not an algorithm but a supply chain — compute halls like this one, the memory that feeds them, and the power plants that run them. Photo: Gregory Rocher / Datarmor (Ifremer), CC BY 4.0, via Wikimedia Commons.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 2 · THE RUN-UP -->
+  <section class="band">
+    <div class="inner">
+      <p class="klabel">II — The run-up</p>
+      <h2 data-reveal>79× in six quarters. Two engines: LP money and markups.</h2>
+      <div class="prose" data-reveal>
+        <p>The first reported book, 31&nbsp;December&nbsp;2024, is a study in the theme: six names — Marvell
+        $86.8M, Vistra $59.1M, Vertiv $51.7M — the data-center and power pick-and-shovel list
+        <span class="cite">— SEC EDGAR, 13F-HR, period 2024-12-31 [verified]</span>. By March 2025 the book had
+        quadrupled to $1.01B across 12 names, and for the first time the leverage is visible: <strong style="color:var(--paper)">Intel
+        long calls, $459.6M</strong>, beside Broadcom $117.2M and Onto Innovation $71.2M
+        <span class="cite">— SEC EDGAR, period 2025-03-31 [verified]</span>.</p>
+        <p>June 2025: $2.12B, and the hedge layer is born — a <strong style="color:var(--paper)">VanEck Semiconductor ETF
+        put at $570.1M</strong> — the fund begins trading both sides of the semi complex. September: $4.14B across
+        28 names, the neocloud sleeve arriving (CoreWeave $563.2M, Core Scientific $362.0M, Intel calls $679.0M).
+        December 2025: $5.52B, 29 names, <strong style="color:var(--paper)">Bloom Energy</strong> the largest at $875.5M —
+        power, compute, and leverage all pointing one direction
+        <span class="cite">— SEC EDGAR, periods 2025-06-30 / 09-30 / 12-31 [verified]</span>.</p>
+        <p>Then the two quarters that define the case. March 2026: <strong style="color:var(--paper)">$13.68B, 42 positions</strong> —
+        AUM triples in a single quarter — carrying a $2.04B ETF put and $1.57B NVIDIA put alongside the longs.
+        June 2026: <strong style="color:var(--paper)">$20.24B in 26 positions</strong>, and the concentration reaches its apex:
+        <mark>SanDisk $5.674B + Micron $5.574B = $11.25B = 55.6% of the entire public book in one macro-theme —
+        the memory supercycle</mark> <span class="cite">— SEC EDGAR, periods 2026-03-31 / 06-30 [verified]</span>.
+        Growth in those quarters came from two engines — new LP capital and markups on the concentrated longs —
+        with borrowing against the book in between <span class="cite">— press strategy attribution [press-sourced]</span>.</p>
+      </div>
+      <blockquote class="pull" data-reveal>
+        “The reporting persons acquired the Common Stock for investment purposes based on their belief that the
+        Common Stock, when purchased, was undervalued and represented an attractive investment opportunity.”
+        <span class="attr">Filing · Schedule 13D, Core Scientific (CORZ) · 2025-08-19 · the fund's own words, 11 months before the tape said otherwise</span>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- 3 · THE WEEK OF JULY -->
+  <section class="band lit">
+    <div class="inner">
+      <p class="klabel">III — The week of July</p>
+      <h2 data-reveal>The reversal, the calls,<br>the sale.</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,5vw,90px);align-items:start">
+        <div class="prose" data-reveal>
+          <p>July 2026 was, per JPMorgan cited in the press, <mark>the worst month on record for the tech hedge-fund
+          category: −10.2%</mark> <span class="cite">— JPMorgan via press [press-sourced]</span>. For this fund the
+          category's month was a liquidation event: the memory momentum names broke, margin calls hit the leveraged
+          longs, and deleveraging stopped being a choice <span class="cite">— press consensus [press-sourced]</span>.
+          Its July equity loss is reported at <mark>~67%</mark> <span class="cite">— press headline figure [unconfirmed-exact]</span>.</p>
+          <p>And then the transaction that defines the case. <strong style="color:var(--paper)">On 30&nbsp;July&nbsp;2026,
+          the fund sold the bulk of its public stock portfolio to Citadel — at a discount, per sources</strong>
+          <span class="cite">— Reuters, Anirban Sen &amp; Manya Saini, New York, 2026-07-30 [press-sourced]</span>.</p>
+          <p>Two details refuse the simple version of the story. First, timing: in the same days — 29&nbsp;June
+          through 2&nbsp;July — EDGAR shows the fund still opening and adjusting a 19.9% position in SharonAI
+          (Forms 3/4), a position it amended on 14&nbsp;August
+          <span class="cite">— SEC EDGAR, CUSIP 778920306 [verified]</span>. Second, appetite: days after the rout,
+          the press reports a <strong style="color:var(--paper)">$400M deployment into the chip startup Source
+          Foundry</strong> <span class="cite">— press, ~2026-07-10 [press-sourced]</span>. A fund under fire was
+          still a fund taking new size into new name-risk.</p>
+        </div>
+        <div class="spine" data-reveal style="border-left-width:1px">
+          <div class="ev"><div class="dt">2026-06-30</div><div class="tx"><strong>Peak 13F book: $20.24B.</strong> 55.6% in SanDisk + Micron. <span class="cite">EDGAR</span></div></div>
+          <div class="ev hot"><div class="dt">2026-07 · (week of ~13–20)</div><div class="tx">Memory reversal; margin calls on leveraged longs; forced deleveraging. <span class="cite">press</span></div></div>
+          <div class="ev"><div class="dt">2026-07 · mid-month</div><div class="tx">$400M into chip startup Source Foundry — capital still moving. <span class="cite">press</span></div></div>
+          <div class="ev hot"><div class="dt">2026-07-30</div><div class="tx"><strong>Sells bulk of public book to Citadel, at a discount.</strong> <span class="cite">Reuters</span></div></div>
+          <div class="ev"><div class="dt">2026-08-14</div><div class="tx">Files 13F (period 6/30) and 13G/A on SharonAI — the legal entity is active. <span class="cite">EDGAR</span></div></div>
+          <div class="ev hot"><div class="dt">2026-08-21</div><div class="tx"><strong>Griffin: &gt;80% of the acquired risk already unwound.</strong> <span class="cite">Reuters</span></div></div>
+        </div>
+      </div>
+
+      <div class="panel" data-reveal>
+        <div class="p-h"><b>The arithmetic of a margin call</b><span>interactive — drag the slider</span></div>
+        <div class="p-grid">
+          <div>
+            <p class="p-note" style="margin-bottom:4px">Notional decline of the book: <b id="lvlPct">0%</b></p>
+            <input type="range" class="lvl-slider" id="lvlRange" min="0" max="30" value="0" step="1" aria-label="Notional decline of the book, 0 to 30 percent">
+            <div class="lvl-bars">
+              <div class="lvl-row"><span>Borrowed · 5:1</span><div class="lvl-track"><div class="lvl-fill borrowed" style="width:80%"></div></div><span class="lvl-val">$80</span></div>
+              <div class="lvl-row"><span>Your equity</span><div class="lvl-track"><div class="lvl-fill equity" id="lvlE" style="width:20%"></div></div><span class="lvl-val" id="lvlEv">$20</span></div>
+            </div>
+            <div class="lvl-status" id="lvlStatus">HEALTHY — THE LEVERAGE IS DOING ITS JOB</div>
+          </div>
+          <p class="p-note">Take <b>$100 of position</b> at five-to-one leverage: <b>$80 is borrowed</b>, $20 is the fund's own. Drag the decline and watch the cushion. Around <b>−15%</b>, the broker makes the first call. At <b>−20%</b>, equity is gone — the broker sells, whatever the price. This is why a fund can report a $20&nbsp;billion book without anything like $20&nbsp;billion behind it, and why July's reversal became a sale instead of a drawdown. The press figure of <b>−67% equity</b> is, on this arithmetic, roughly a −13% move in the book itself. Leverage converts an ordinary bad month into an extinction event.</p>
+        </div>
+      </div>
+
+      <div class="figpair">
+        <figure class="figure" data-reveal>
+          <img src="assets/img/tradingfloor.jpg" alt="A crowded stock exchange trading floor — people at every desk as prices move" loading="lazy">
+          <figcaption><b>The human machinery of "the market reversed."</b> Every phrase like it on this page was, in reality, thousands of people at desks receiving margin calls and deciding what to sell first. Trading floor, New York Stock Exchange. Illustrative — not the fund's staff. Photo: Thomas J. O'Halloran / Library of Congress, public domain.</figcaption>
+        </figure>
+        <figure class="figure" data-reveal>
+          <img src="assets/img/trader-tuchman.jpg" alt="A trader working the floor of the New York Stock Exchange" loading="lazy">
+          <figcaption><b>One desk among thousands.</b> Forced deleveraging is executed by people, position by position, at screens like this one. Illustrative. Photo: Bear Bull Traders, CC BY 2.0, via Wikimedia Commons.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · THE BUYER -->
+  <section class="band">
+    <div class="inner">
+      <p class="klabel">IV — The buyer</p>
+      <h2 data-reveal>The cleanest evidence in the case<br>is the buyer's exit speed.</h2>
+      <div class="prose" data-reveal>
+        <p>Citadel took the bulk — not, per the reporting, the entirety — of a public book that on 30&nbsp;June was
+        worth <strong style="color:var(--paper)">$20.24B</strong> in the fund's own 13F, at what the reporting calls a
+        discount <span class="cite">— Reuters, 2026-07-30 [press-sourced]</span>. On 21&nbsp;August, Ken Griffin told
+        clients that Citadel had since unwound <mark>more than 80% of the aggregate risk</mark> from the acquired
+        book, inside roughly three weeks
+        <span class="cite">— Reuters (Sen, Basil); IBTimes; Crypto Briefing, 2026-08-21/22 [press-sourced]</span>.</p>
+        <p>Read the three facts together — a $20.2B concentrated mark on 30&nbsp;June; a discounted bulk sale on
+        30&nbsp;July; and a $20-scale position's risk discarded 4/5 inside three weeks — and the inference is the
+        finding: this was not a portfolio being inherited. A buyer sophisticated enough to move that size at a
+        price, who then flushed the risk in under a month, was marking the book where the market put it in July,
+        not where the 13F put it in June. The public record states the discount; the buyer's behavior states the
+        rest <span class="cite">— inference from [verified] + [press-sourced], dossier §6</span>.</p>
+      </div>
+      <blockquote class="pull" data-reveal>
+        “Citadel has shed more than 80% of the aggregate risk from the Situational Awareness portfolio… within
+        three weeks of the purchase.”
+        <span class="attr">Press · Reuters, Anirban Sen &amp; Arasu Kannagi Basil · 2026-08-21 · the buyer's letter, as reported</span>
+      </blockquote>
+
+      <figure class="figure" data-reveal>
+        <img src="assets/img/griffin.jpg" alt="Ken Griffin, founder and CEO of Citadel — the buyer of the fund's book" loading="lazy" style="max-height:540px;object-fit:cover;object-position:center 20%;">
+        <figcaption><b>The buyer: Ken Griffin, founder and CEO of Citadel.</b> His desks bought the book at a discount on 30 July — and his letter to clients three weeks later disclosed the &gt;80% unwind. The public record states the discount; this is the man whose traders set the real price. Photo: Paul Elledge, CC BY-SA 4.0, via Wikimedia Commons.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 5 · THE REMAINDER -->
+  <section class="band lit">
+    <div class="inner">
+      <p class="klabel">V — The remainder</p>
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:clamp(40px,5vw,90px);align-items:start">
+        <div data-reveal>
+          <h2 style="margin-bottom:24px">What the official record shows still stands</h2>
+          <table class="dtable" style="font-size:12.5px">
+            <tr><th>Filing still on file</th><th>Last date</th><th class="col-cut">State</th></tr>
+            <tr><td>13F-HR, period 2026-06-30 (the $20.24B book)</td><td class="strong">2026-08-14</td><td class="col-cut">as-quoted in the record</td></tr>
+            <tr><td>13G/A — SharonAI 7,563,029 at 19.9%</td><td class="strong">2026-08-14</td><td class="col-cut">amended, not closed</td></tr>
+            <tr><td>13D/A — Core Scientific 14.09M sh (4.4%)</td><td class="strong">2026-08-04</td><td class="col-cut">halved from peak 28.76M</td></tr>
+            <tr><td>Dissolution / liquidation / de-registration</td><td class="lose" colspan="2">none found — 0 forms, all 4 CIKs</td></tr>
+          </table>
+          <p style="margin-top:20px;font-size:14px" class="src">The Core Scientific position went 5.8% → 9.4% → 4.4% between its three 13D filings — the public record of the same retreat the press describes. The 8.1% “deemed” figure in the last amendment remains a derivative count, unconfirmed in reconciliation. <a href="#room-4" style="border-bottom:1px solid var(--rule2)">Filing index →</a></p>
+        </div>
+        <div data-reveal style="border:1px solid var(--rule);padding:clamp(24px,3vw,40px)">
+          <p class="klabel" style="margin-bottom:18px">What is not in the record</p>
+          <p style="font-size:15px;margin-bottom:16px">No bankruptcy. No SEC enforcement. No liquidation notice. No “cease of operations” form. The absence of those documents, verified across all four CIKs on 23&nbsp;August&nbsp;2026, is itself a finding: <mark>the fund did not close. It was emptied.</mark></p>
+          <p style="font-size:15px;margin-bottom:16px">The private Anthropic stake is reported to have stayed with the firm <span class="cite">[press-sourced]</span> — private, so it never appears in any 13F at all.</p>
+          <div class="stamp-line">Book ceased · 30·07·2026</div>
+        </div>
+      </div>
+      <blockquote class="pull" data-reveal>
+        The $45B fund ceased. The firm did not.
+        <span class="attr">Finding · SA-001 · 23·08·2026 · from a [verified] filing record plus [press-sourced] reporting</span>
+      </blockquote>
+    </div>
+  </section>
+</section>
+
+<!-- ============ ROOM 3 — THE NUMBERS ============ -->
+<section class="room" id="room-3">
+  <header class="band room-head">
+    <div class="inner">
+      <span class="ghost-num" aria-hidden="true">03</span>
+      <p class="klabel">Room 03 — The numbers, scrubbed</p>
+      <h2 class="room-title">Seven quarters.<br><span class="sub">One gesture.</span></h2>
+      <p class="lead" data-reveal>Scrub the rail and the book answers: its size, its position count, its character.
+      The rail stops where the record stops — and the last two marks are not quarters. They are the sale, and the
+      buyer's exit. Everything below is summed straight from the seven 13F-HR infoTables on EDGAR; nothing is
+      estimated here. (Options values are reported as positive gross in the filings; net exposure was lower.)</p>
+    </div>
+  </header>
+
+  <section class="band tight">
+    <div class="inner">
+      <p class="klabel" style="margin-bottom:28px">The rail — 12·24 → 08·26</p>
+      <div class="scrub" id="quarterScrub" role="tablist" aria-label="Quarter rail">
+        <div class="track">
+          <div class="ticks">
+            <div class="tick" role="tab" tabindex="0" aria-label="2024-12-31: $254.8M"><span class="ta" data-val="254.8">$254.8M</span><span class="tl">12·24</span></div>
+            <div class="tick" role="tab" tabindex="0" aria-label="2025-03-31: $1.01B"><span class="ta">$1.01B</span><span class="tl">03·25</span></div>
+            <div class="tick" role="tab" tabindex="0" aria-label="2025-06-30: $2.12B"><span class="ta">$2.12B</span><span class="tl">06·25</span></div>
+            <div class="tick" role="tab" tabindex="0" aria-label="2025-09-30: $4.14B"><span class="ta">$4.14B</span><span class="tl">09·25</span></div>
+            <div class="tick" role="tab" tabindex="0" aria-label="2025-12-31: $5.52B"><span class="ta">$5.52B</span><span class="tl">12·25</span></div>
+            <div class="tick" role="tab" tabindex="0" aria-label="2026-03-31: $13.68B"><span class="ta">$13.68B</span><span class="tl">03·26</span></div>
+            <div class="tick" role="tab" tabindex="0" aria-label="2026-06-30: $20.24B peak"><span class="ta">$20.24B</span><span class="tl">06·26</span></div>
+            <div class="tick" role="tab" tabindex="0" aria-label="July 2026: sold"><span class="ta" style="color:var(--lose)">SOLD</span><span class="tl" style="color:var(--lose)">07·26</span></div>
+            <div class="tick" role="tab" tabindex="0" aria-label="2026-08-21: buyer unwound over 80 percent"><span class="ta" style="color:var(--lose)">GONE</span><span class="tl" style="color:var(--lose)">08·26</span></div>
+          </div>
+          <div class="flagline" data-cap="12·24"></div>
+        </div>
+      </div>
+      <div class="quarter-readout">
+        <div data-reveal>
+          <p class="klabel" style="margin-bottom:10px">Public book, 13F-gross</p>
+          <div class="big" id="qrAum" aria-live="polite">$254.8M<span class="u"> public book</span></div>
+          <p style="margin-top:16px" class="cite" id="qrPos">6 positions (13F)</p>
+        </div>
+        <div data-reveal>
+          <p class="klabel" style="margin-bottom:10px">Character of the book</p>
+          <p id="qrNote" style="max-width:56ch;min-height:5.5em" aria-live="polite">First reported book: data-center memory, power and semis — Marvell, Vistra, Vertiv.</p>
+          <p class="cite" style="margin-top:14px">13F values are gross of options as reported; puts and calls carry positive value in the filing. Period-end snapshots, not flow.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band lit">
+    <div class="inner">
+      <p class="klabel">Composition at the two defining quarters</p>
+      <div class="hold-grid">
+        <div data-reveal>
+          <h3>2025-12-31 — $5.52B · 29 names</h3>
+          <p style="font-size:14.5px;margin-bottom:22px" class="src">The neocloud + power sleeve, leveraged with long calls. Character: AI infrastructure end-to-end.</p>
+          <div class="conc">
+            <div class="conc-row"><span class="cn">Bloom Energy</span><div class="conc-track"><div class="conc-fill" style="width:100%"></div></div><span class="cv">$875.5M</span></div>
+            <div class="conc-row"><span class="cn">CoreWeave (long call)</span><div class="conc-track"><div class="conc-fill" style="width:88.5%"></div></div><span class="cv">$774.4M</span></div>
+            <div class="conc-row"><span class="cn">Intel (long call)</span><div class="conc-track"><div class="conc-fill" style="width:85.3%"></div></div><span class="cv">$746.8M</span></div>
+            <div class="conc-row"><span class="cn">Lumentum</span><div class="conc-track"><div class="conc-fill" style="width:54.7%"></div></div><span class="cv">$478.6M</span></div>
+            <div class="conc-row"><span class="cn">CoreWeave (stock)</span><div class="conc-track"><div class="conc-fill" style="width:49.9%"></div></div><span class="cv">$436.7M</span></div>
+            <div class="conc-row"><span class="cn">Core Scientific</span><div class="conc-track"><div class="conc-fill" style="width:47.8%"></div></div><span class="cv">$418.7M</span></div>
+            <div class="conc-row"><span class="cn">IREN</span><div class="conc-track"><div class="conc-fill" style="width:37.5%"></div></div><span class="cv">$328.6M</span></div>
+            <div class="conc-row"><span class="cn">Applied Digital</span><div class="conc-track"><div class="conc-fill" style="width:31.8%"></div></div><span class="cv">$278.0M</span></div>
+          </div>
+          <p class="cite" style="margin-top:14px">SEC EDGAR · 13F-HR accession 0002045724-26-000002 · bars relative to the largest name</p>
+        </div>
+        <div data-reveal>
+          <h3>2026-03-31 — $13.68B · 42 names</h3>
+          <p style="font-size:14.5px;margin-bottom:22px" class="src">AUM triples in one quarter. The hedge layer goes large: puts on the semi leaders — while the longs stay concentrated in memory.</p>
+          <div class="conc">
+            <div class="conc-row"><span class="cn">VanEck Semi ETF (put)</span><div class="conc-track"><div class="conc-fill" style="width:100%;background:repeating-linear-gradient(-45deg,transparent 0 5px,rgba(214,73,47,.6) 5px 10px)"></div></div><span class="cv">$2,043M</span></div>
+            <div class="conc-row"><span class="cn">NVIDIA (put)</span><div class="conc-track"><div class="conc-fill" style="width:76.7%;background:repeating-linear-gradient(-45deg,transparent 0 5px,rgba(214,73,47,.6) 5px 10px)"></div></div><span class="cv">$1,568M</span></div>
+            <div class="conc-row"><span class="cn">Oracle (put)</span><div class="conc-track"><div class="conc-fill" style="width:52.5%;background:repeating-linear-gradient(-45deg,transparent 0 5px,rgba(214,73,47,.6) 5px 10px)"></div></div><span class="cv">$1,073M</span></div>
+            <div class="conc-row"><span class="cn">Broadcom (put)</span><div class="conc-track"><div class="conc-fill" style="width:49.2%;background:repeating-linear-gradient(-45deg,transparent 0 5px,rgba(214,73,47,.6) 5px 10px)"></div></div><span class="cv">$1,006M</span></div>
+            <div class="conc-row"><span class="cn">AMD (put)</span><div class="conc-track"><div class="conc-fill" style="width:47.4%;background:repeating-linear-gradient(-45deg,transparent 0 5px,rgba(214,73,47,.6) 5px 10px)"></div></div><span class="cv">$969.2M</span></div>
+            <div class="conc-row"><span class="cn">Bloom Energy</span><div class="conc-track"><div class="conc-fill" style="width:43%"></div></div><span class="cv">$878.7M</span></div>
+            <div class="conc-row"><span class="cn">SanDisk</span><div class="conc-track"><div class="conc-fill" style="width:35.5%"></div></div><span class="cv">$724.4M</span></div>
+            <div class="conc-row"><span class="cn">TSMC (put)</span><div class="conc-track"><div class="conc-fill" style="width:26.2%;background:repeating-linear-gradient(-45deg,transparent 0 5px,rgba(214,73,47,.6) 5px 10px)"></div></div><span class="cv">$535.1M</span></div>
+          </div>
+          <p class="cite" style="margin-top:14px">SEC EDGAR · 13F-HR accession 0002045724-26-000008 · hatched = option position (put)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="inner">
+      <p class="klabel">The peak book — 2026-06-30 · $20.24B · 26 names</p>
+      <h2 data-reveal>55.6% of the book lived<br>in one word: memory.</h2>
+      <div class="hold-grid">
+        <div data-reveal>
+          <p style="max-width:58ch;margin-bottom:28px">Two names — SanDisk and Micron — held <mark>$11.25 billion
+          of the $20.24 billion</mark> public book. That is not diversification with two large positions; it is a
+          single-theme fund wearing a portfolio's shape. Everything else in the book — power (Bloom), the neocloud
+          names (Nebius, CoreWeave, Core Scientific), the fab (TSMC), miners (Riot) — orbits the same trade:
+          that the physical AI buildout keeps compounding and that memory is its scarcest component
+          <span class="cite">— SEC EDGAR, 13F-HR 0000935836-26-000418 [verified]</span>.</p>
+          <div class="compose">
+            <div class="comp-row"><div class="top"><span class="nm">Memory (SanDisk + Micron)</span><span class="vv">$11.25B · 55.6%</span></div><div class="strip4"><div class="seg memory" style="width:55.6%"></div></div></div>
+            <div class="comp-row"><div class="top"><span class="nm">Power — Bloom Energy</span><span class="vv">$1.899B · 9.4%</span></div><div class="strip4"><div class="seg power" style="width:9.4%"></div></div></div>
+            <div class="comp-row"><div class="top"><span class="nm">Neoclouds — Nebius · CoreWeave · Core Scientific</span><span class="vv">$2.643B · 13.1%</span></div><div class="strip4"><div class="seg neocloud" style="width:13.1%"></div></div></div>
+            <div class="comp-row"><div class="top"><span class="nm">Fabs &amp; semis — TSMC · STMicro</span><span class="vv">$1.849B · 9.1%</span></div><div class="strip4"><div class="seg other" style="width:9.1%"></div></div></div>
+            <div class="comp-row"><div class="top"><span class="nm">Everything else — Applied Digital · Riot · remainder</span><span class="vv">$2.60B · 12.8% (incl. options rows)</span></div><div class="strip4"><div class="seg other" style="width:12.8%"></div></div></div>
+          </div>
+          <div class="legend">
+            <span class="li"><span class="sw" style="background:var(--paper)"></span>memory</span>
+            <span class="li"><span class="sw" style="background:#8C93A3"></span>power</span>
+            <span class="li"><span class="sw" style="background:#3E4655"></span>neocloud</span>
+            <span class="li"><span class="sw" style="background:#1E222B;border:1px solid var(--rule)"></span>fab / other</span>
+            <span class="li"><span class="sw" style="background:repeating-linear-gradient(-45deg,transparent 0 4px,rgba(214,73,47,.6) 4px 8px)"></span>option position</span>
+          </div>
+          <p class="cite" style="margin-top:20px">Shares of total public book, 26 reported positions. Category groupings are this site's editorial labels over the filing names; the per-name values are the filing's own.</p>
+          <div class="explain" data-reveal style="margin-top:32px">
+            <p class="klabel">Explained — why memory, and what the hatching means</p>
+            <dl>
+              <dt>The memory trade</dt>
+              <dd>Every AI server gorges on memory: <b>DRAM</b> for working data and <b>NAND</b> for storage, with <b>HBM</b> (high-bandwidth memory, DRAM stacked in layers beside the GPU) as the scarce ingredient of the 2025–26 buildout. SanDisk (the flash business Western Digital spun off in 2025) and Micron are two of the few companies on earth that make it at scale — so a bet on "the AI buildout keeps compounding" becomes, very quickly, a bet on two memory balance sheets.</dd>
+              <dt>Call option</dt>
+              <dd>A paid contract that behaves like leveraged ownership: it rises and falls faster than the stock itself. The fund's long calls on Intel and CoreWeave were leveraged upside — cheap to blow up in either direction, which is exactly how the book grew so fast.</dd>
+              <dt>Put option (hatched bars)</dt>
+              <dd>A paid contract that <b>pays out when a stock falls</b> — insurance, or a stealth short. The diagonal hatching on this page marks every put in the book. By March 2026 the fund held roughly $6.2B of puts on NVIDIA, Oracle, Broadcom, AMD, TSMC and a semiconductor ETF: a $13.7B book that was simultaneously betting on the AI trade (memory longs) and against its biggest winners (the put book). That contradiction is the strategy.</dd>
+            </dl>
+          </div>
+        </div>
+        <div data-reveal>
+          <h3 style="margin-bottom:20px">Top of the book, by the filing's own value</h3>
+          <table class="dtable">
+            <tr><th>#</th><th>Name</th><th style="text-align:right">Value</th></tr>
+            <tr><td>1</td><td class="strong">SanDisk</td><td class="big" style="text-align:right">$5.674B</td></tr>
+            <tr><td>2</td><td class="strong">Micron</td><td class="big" style="text-align:right">$5.574B</td></tr>
+            <tr><td>3</td><td>Bloom Energy</td><td style="text-align:right">$1.899B</td></tr>
+            <tr><td>4</td><td>TSMC (ADS)</td><td style="text-align:right">$1.265B</td></tr>
+            <tr><td>5</td><td>Nebius</td><td style="text-align:right">$1.233B</td></tr>
+            <tr><td>6</td><td>CoreWeave</td><td style="text-align:right">$744.5M</td></tr>
+            <tr><td>7</td><td>Core Scientific</td><td style="text-align:right">$665.6M</td></tr>
+            <tr><td>8</td><td>STMicroelectronics</td><td style="text-align:right">$584.3M</td></tr>
+            <tr><td>9</td><td>Applied Digital</td><td style="text-align:right">$469.0M</td></tr>
+            <tr><td>10</td><td>Riot Platforms</td><td style="text-align:right">$468.2M</td></tr>
+          </table>
+          <p class="cite" style="margin-top:14px">Accession 0000935836-26-000418 · period 2026-06-30 · gross values as reported. The book's remaining 16 names total ≈$1.2B.</p>
+        </div>
+      </div>
+
+      <div class="panel" data-reveal>
+        <div class="p-h"><b>The peak book, sliced — 30 June 2026</b><span>interactive — hover the segments</span></div>
+        <div class="p-grid">
+          <div class="donut-wrap">
+            <div class="donut" id="donut">
+              <svg viewBox="0 0 220 220" role="img" aria-label="Donut chart of the final book: memory 55.6 percent, neoclouds 13.1, everything else 12.8, power 9.4, fabs and semis 9.1">
+                <circle class="seg" data-name="Memory — SanDisk + Micron" data-val="55.6" cx="110" cy="110" r="80" stroke="#191B20" stroke-dasharray="279.5 502.7" stroke-dashoffset="0"/>
+                <circle class="seg" data-name="Neoclouds — Nebius · CoreWeave · Core Scientific" data-val="13.1" cx="110" cy="110" r="80" stroke="#3E4655" stroke-dasharray="65.8 502.7" stroke-dashoffset="-279.5"/>
+                <circle class="seg" data-name="Everything else, incl. option rows" data-val="12.8" cx="110" cy="110" r="80" stroke="#9AA3B0" stroke-dasharray="64.3 502.7" stroke-dashoffset="-345.3"/>
+                <circle class="seg" data-name="Power — Bloom Energy" data-val="9.4" cx="110" cy="110" r="80" stroke="#C6CBD4" stroke-dasharray="47.2 502.7" stroke-dashoffset="-409.6"/>
+                <circle class="seg" data-name="Fabs &amp; semis — TSMC · STMicro" data-val="9.1" cx="110" cy="110" r="80" stroke="#6E7683" stroke-dasharray="45.7 502.7" stroke-dashoffset="-456.8"/>
+              </svg>
+              <div class="d-label"><span class="dv" id="donutV">55.6%</span><span class="dl" id="donutL">Memory — SanDisk + Micron</span></div>
+            </div>
+          </div>
+          <div>
+            <p class="p-note" style="margin-bottom:22px"><b>One theme wore a portfolio's shape.</b> Hover each slice: memory alone was 55.6% of everything the fund held on 30 June — and the "everything else" slice still orbits the same AI-buildout thesis. When that single theme reversed in July, there was nowhere in the book to hide. Compare it with the put book one quarter earlier: the fund knew the risk was there, and hedges sized for a normal drawdown are not sized for a stampede.</p>
+            <div class="dlegend">
+              <div class="li"><span class="sw" style="background:#191B20"></span><span class="nm">Memory — SanDisk + Micron</span><span class="vv">$11.25B · 55.6%</span></div>
+              <div class="li"><span class="sw" style="background:#3E4655"></span><span class="nm">Neoclouds — Nebius · CoreWeave · Core Sci</span><span class="vv">$2.64B · 13.1%</span></div>
+              <div class="li"><span class="sw" style="background:#9AA3B0"></span><span class="nm">Everything else, incl. option rows</span><span class="vv">$2.59B · 12.8%</span></div>
+              <div class="li"><span class="sw" style="background:#C6CBD4"></span><span class="nm">Power — Bloom Energy</span><span class="vv">$1.90B · 9.4%</span></div>
+              <div class="li"><span class="sw" style="background:#6E7683"></span><span class="nm">Fabs &amp; semis — TSMC · STMicro</span><span class="vv">$1.85B · 9.1%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <figure class="figure" data-reveal>
+        <img src="assets/img/dram.jpg" alt="A DDR4 memory module — the RAM stick that became the fund's largest position theme" loading="lazy">
+        <figcaption><b>The commodity at the centre of the collapse.</b> 55.6% of the final book sat in two memory makers. Photo: ElooKoN, CC BY-SA 4.0, via Wikimedia Commons.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="verdict">
+    <div class="inner">
+      <div>
+        <p class="klabel" style="margin-bottom:20px">The arithmetic of the end</p>
+        <div class="stamp-line">6·26 peak → 7·26 sold → 8·26 unwound</div>
+      </div>
+      <div>
+        <h2 style="margin-bottom:18px">$20.24B existed on 30 June.<br>It did not exist on 30 July.</h2>
+        <p class="lead" style="font-size:clamp(16px,1.4vw,19px)">The numbers room never shows the loss, because 13Fs
+        do not show losses — they show what was still held at the end of a quarter. The $20.24B bar is the last bar.
+        Everything after it — the −67% July, the discounted sale, the buyer's three-week exit — arrives from the
+        press and is tagged as such in the sources room. That boundary between what a filing can say and what only
+        a newsroom can say is the shape of this whole case.</p>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ ROOM 4 — THE RECORD ============ -->
+<section class="room" id="room-4">
+  <header class="band room-head">
+    <div class="inner">
+      <span class="ghost-num" aria-hidden="true">04</span>
+      <p class="klabel">Room 04 — The official record</p>
+      <h2 class="room-title">The filings are the story.<br><span class="sub">Everything here opens in EDGAR.</span></h2>
+      <p class="lead" data-reveal>This room is the case file: every filing the four CIKs made from December 2024 to
+      August 2026, with accession numbers and the filing's own figures. Where a number elsewhere on this page
+      is disputed or incomplete, this room settles it. Where it cannot — the July losses, the sale price, the
+      Anthropic stake — this room says exactly that.</p>
+      <div class="explain" data-reveal>
+        <p class="klabel">Explained — the form dictionary</p>
+        <dl>
+          <dt>13F-HR</dt>
+          <dd>The quarterly holdings report every investment manager with over $100M in US-listed equities must file within 45 days of quarter-end. It shows <b>what was held at the quarter's end</b> — never what happened next, and never private holdings. The 45-day lag is why the public did not see the July collapse until mid-August.</dd>
+          <dt>13D / 13G</dt>
+          <dd>Filed within days of crossing 5% of a single company. A <b>13D</b> says "active stake, we may influence or push changes"; a <b>13G</b> says "passive stake, purely investment." Amendments (D/A, G/A) track every move above threshold — which is how this page can watch Core Scientific go 5.8% → 9.4% → 4.4%.</dd>
+          <dt>Form D</dt>
+          <dd>The notice filed when a fund raises money privately ("Regulation D"). It reveals the vehicle structure — the Partners, Offshore and series entities — but never the dollar amounts. That silence is why the ≈$45B peak figure comes from press reporting, not from any filing.</dd>
+          <dt>Forms 3 / 4</dt>
+          <dd>Insider transaction records: Form 3 opens an ownership file, Form 4 reports each trade. The fund's SharonAI Forms 3 and 4 (June–July 2026) show it still building a 19.9%-capped position <b>days before the collapse</b> — and amending it on 14 August, after.</dd>
+        </dl>
+      </div>
+    </div>
+  </header>
+
+  <section class="band lit">
+    <div class="inner">
+      <p class="klabel">Exhibit A — 13F-HR, the public book by quarter</p>
+      <table class="dtable" data-reveal>
+        <tr><th>Period end</th><th>Filed</th><th>Accession</th><th style="text-align:right">Public book (gross)</th><th style="text-align:right">Positions</th><th>Character (top names, per filing)</th></tr>
+        <tr><td class="strong">2024-12-31</td><td>2025-02-12</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000093583625000120/" target="_blank" rel="noopener">…25-000120 ↗</a></td><td class="big" style="text-align:right">$254,813,765</td><td style="text-align:right">6</td><td class="src">Marvell · Vistra · Vertiv</td></tr>
+        <tr><td class="strong">2025-03-31</td><td>2025-05-14</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000204572425000002/" target="_blank" rel="noopener">…25-000002 ↗</a></td><td class="big" style="text-align:right">$1,005,567,727</td><td style="text-align:right">12</td><td class="src">Intel (call) $459.6M · Broadcom · Onto Inno</td></tr>
+        <tr><td class="strong">2025-06-30</td><td>2025-08-14</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000204572425000006/" target="_blank" rel="noopener">…25-000006 ↗</a></td><td class="big" style="text-align:right">$2,123,023,762</td><td style="text-align:right">9</td><td class="src">VanEck Semi ETF (put) $570.1M · Intel (call) · Broadcom</td></tr>
+        <tr><td class="strong">2025-09-30</td><td>2025-11-14</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000204572425000008/" target="_blank" rel="noopener">…25-000008 ↗</a></td><td class="big" style="text-align:right">$4,138,368,748</td><td style="text-align:right">28</td><td class="src">Intel (call) $679.0M · CoreWeave $563.2M · Core Scientific $362.0M</td></tr>
+        <tr><td class="strong">2025-12-31</td><td>2026-02-11</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000204572426000002/" target="_blank" rel="noopener">…26-000002 ↗</a></td><td class="big" style="text-align:right">$5,516,758,345</td><td style="text-align:right">29</td><td class="src">Bloom $875.5M · CoreWeave (call) · Intel (call)</td></tr>
+        <tr><td class="strong">2026-03-31</td><td>2026-05-18</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/" target="_blank" rel="noopener">…26-000008 ↗</a></td><td class="big" style="text-align:right">$13,676,657,577</td><td style="text-align:right">42</td><td class="src">ETF put $2.04B · NVDA (put) $1.57B · ORCL (put) $1.07B</td></tr>
+        <tr><td class="strong">2026-06-30</td><td>2026-08-14</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000093583626000418/" target="_blank" rel="noopener">…26-000418 ↗</a></td><td class="big lose" style="text-align:right">$20,242,292,228</td><td style="text-align:right">26</td><td class="src">SanDisk $5.67B · Micron $5.57B · Bloom $1.90B — sold under pressure 20 days later</td></tr>
+      </table>
+      <p class="cite" data-reveal style="margin-top:18px">Growth 2024-12 → 2026-06: ≈79×. Values are per the infoTable `value` fields (gross of options, as the filing reports them positive). The 13F states holdings as of the period end; it cannot describe what happened in July, and this record does not.</p>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="inner">
+      <p class="klabel">Exhibit B — block positions, 13D / 13G / Forms 3–4</p>
+      <div class="hold-grid">
+        <table class="dtable" data-reveal>
+          <tr><th colspan="5" style="border-bottom-color:var(--rule2);color:var(--paper)">Core Scientific (CORZ) — active role, 13D</th></tr>
+          <tr><th>Filing</th><th>Date</th><th>Shares</th><th>Pct</th><th class="src">Note</th></tr>
+          <tr><td class="strong">13D</td><td>2025-08-19</td><td>17,682,918</td><td>5.8%</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000093583625000543/" target="_blank" rel="noopener">…-000543 ↗</a> “undervalued… attractive investment opportunity”</td></tr>
+          <tr><td class="strong">13D/A</td><td>2025-10-14</td><td>28,756,478</td><td style="color:var(--paper)">9.4%</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000093583625000638/" target="_blank" rel="noopener">…-000638 ↗</a> peak block — $362.1M 60-day value</td></tr>
+          <tr><td class="strong">13D/A</td><td>2026-08-04</td><td class="lose">14,089,395</td><td class="lose">4.4%</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000091957426004796/" target="_blank" rel="noopener">…-04796 ↗</a> halved; footnote “deemed 25,608,473 (8.1%)” [unconfirmed]</td></tr>
+        </table>
+        <table class="dtable" data-reveal>
+          <tr><th colspan="5" style="border-bottom-color:var(--rule2);color:var(--paper)">SharonAI Holdings (SHAZ) — 19.9% cap structure</th></tr>
+          <tr><th>Filing</th><th>Date</th><th>Total</th><th>Pct</th><th class="src">Note</th></tr>
+          <tr><td class="strong">13G</td><td>2026-06-29</td><td>5,404,540</td><td>19.9%</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000093583626000334/" target="_blank" rel="noopener">…-000334 ↗</a> 1.696M sh + 6.375M pre-funded warrants</td></tr>
+          <tr><td class="strong">Form 3</td><td>2026-06-30</td><td>—</td><td>—</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000093583626000333/" target="_blank" rel="noopener">…-000333 ↗</a> acquired 1,696,127 sh + warrants @ $0.0001 (22·06)</td></tr>
+          <tr><td class="strong">Form 4</td><td>2026-07-02</td><td>—</td><td>—</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000093583626000339/" target="_blank" rel="noopener">…-000339 ↗</a> +3.7M sh @ $0.0001 (30·06); −3.7M warrants</td></tr>
+          <tr><td class="strong">13G/A</td><td>2026-08-14</td><td>7,563,029</td><td>19.9%</td><td class="src col-cut"><a href="https://www.sec.gov/Archives/edgar/data/2045724/000093583626000416/" target="_blank" rel="noopener">…-000416 ↗</a> 5.396M sh + 2.675M warrants — latest SA filing of record</td></tr>
+        </table>
+      </div>
+      <div class="hold-grid" style="margin-top:clamp(48px,7vh,84px)">
+        <div data-reveal>
+          <p class="klabel" style="margin-bottom:14px">Exhibit C — Nebius Group N.V. (NBIS)</p>
+          <p style="max-width:56ch">13G filed 2026-05-27, as of 2026-05-19: <strong style="color:var(--paper)">12,410,060 Class A shares, 5.6%</strong> of 220,406,311 outstanding per the issuer's 6-K of 2026-05-20
+          <span class="cite">— <a href="https://www.sec.gov/Archives/edgar/data/2045724/000093583626000303/" target="_blank" rel="noopener">…-000303 ↗</a> [verified]</span>. Nebius also appears as a $1.233B position in the peak 13F — the filing and the 13G agree with each other.</p>
+        </div>
+        <div data-reveal>
+          <p class="klabel" style="margin-bottom:14px">Exhibit D — private-placement vehicles (Form D family)</p>
+          <p style="max-width:56ch"><strong style="color:var(--paper)">SA Partners LP</strong> (CIK 0002038540) — Form D 2024-09-23 + D/A on 2025-09-08, 2025-12-29, 2026-03-10 · <strong style="color:var(--paper)">SA Offshore LP</strong> (CIK 0002048430, Cayman) — D/A on 2025-12-08, 2025-12-29, 2026-03-10 · <strong style="color:var(--paper)">SA LP Nov 2024 a Series of CGF2021 LLC</strong> (CIK 0002047424) — Form D 2024-12-05
+          <span class="cite">— SEC EDGAR, Form D series [verified]; amounts: not stated here (Form D reports investor counts, not values — that's the point of the form)</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="verdict">
+    <div class="inner">
+      <div>
+        <p class="klabel" style="margin-bottom:20px">Negative finding — searched 23·08·2026</p>
+        <div class="stamp-line">0 termination documents</div>
+      </div>
+      <div>
+        <h2 style="margin-bottom:18px">Searched, and not found:</h2>
+        <p class="lead" style="font-size:clamp(16px,1.4vw,19px)">No dissolution, de-registration, liquidation, winding-up, suspension, or enforcement
+        document exists for CIK 0002045724, 0002038540, 0002048430 or 0002047424 in EDGAR as of the compile date.
+        The last document on file is a 13G/A dated 2026-08-14. “Ceased to exist” describes the book and the marks;
+        the filings describe a firm that is, in the register's sense, still in business. Master index:
+        <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002045724" target="_blank" rel="noopener" style="border-bottom:1px solid var(--paper)">SEC EDGAR — CIK 0002045724 ↗</a></p>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ ROOM 5 — SOURCES ============ -->
+<section class="room" id="room-5">
+  <header class="band room-head">
+    <div class="inner">
+      <span class="ghost-num" aria-hidden="true">05</span>
+      <p class="klabel">Room 05 — Sources &amp; confidence</p>
+      <h2 class="room-title">What a filing can say.<br><span class="sub">And what only a newsroom can.</span></h2>
+      <p class="lead" data-reveal>Three confidence levels, used consistently across this page. <span class="ok">Verified</span> —
+      read straight from a primary document on SEC EDGAR; the link opens it. <em>Press-sourced</em> — attributed to a
+      named outlet; the page reproduces the reporting, it does not re-verify it. <span class="red">Unconfirmed</span> —
+      the figure varies by outlet or is a single source's estimate; treated as a range, not a fact.</p>
+    </div>
+  </header>
+
+  <section class="band lit">
+    <div class="inner">
+      <p class="klabel">Claim register</p>
+      <div data-reveal>
+        <div class="src-row"><span class="claim"><b>AUM arc — seven quarterly public-book values ($254.8M → $20.24B) and all named position values</b></span><span class="who">SEC EDGAR · 13F-HR infoTables, CIK 0002045724 · periods 2024-12-31 → 2026-06-30 · <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002045724&type=13F&dateb=0&owner=include&count=40" target="_blank" rel="noopener">full 13F index ↗</a></span><span class="conf verified">Verified</span></div>
+        <div class="src-row"><span class="claim"><b>Core Scientific block: 5.8% → 9.4% → 4.4% across three 13D filings; “undervalued… attractive investment opportunity” language</b></span><span class="who">SEC EDGAR · 13D + 2 × 13D/A · 2025-08-19 / 2025-10-14 / 2026-08-04</span><span class="conf verified">Verified</span></div>
+        <div class="src-row"><span class="claim"><b>SharonAI position built and amended to 7,563,029 total at the 19.9% cap (Forms 3/4 + 13G/A)</b></span><span class="who">SEC EDGAR · 13G, F3, F4, 13G/A · 2026-06-29 / 30 / 07-02 / 08-14</span><span class="conf verified">Verified</span></div>
+        <div class="src-row"><span class="claim"><b>Nebius 12,410,060 sh / 5.6% (13G, 2026-05-27); four CIK structure incl. Cayman offshore vehicle</b></span><span class="who">SEC EDGAR · 13G …-000303; company records CIK 0002038540 / 0002048430 / 0002047424</span><span class="conf verified">Verified</span></div>
+        <div class="src-row"><span class="claim"><b>No dissolution, liquidation, de-registration or enforcement document in EDGAR for any of the four CIKs</b></span><span class="who">SEC EDGAR · searched 2026-08-23 (full-text “situational awareness” + per-CIK submission feeds)</span><span class="conf verified">Verified (absence)</span></div>
+
+        <div class="src-row"><span class="claim"><b>Bulk sale of the public stock portfolio to Citadel, at a discount, per sources — 2026-07-30</b></span><span class="who">Reuters · Anirban Sen &amp; Manya Saini, New York · 2026-07-30 · corroborated by IBTimes / Crypto Briefing on the unwind</span><span class="conf press">Press-sourced</span></div>
+        <div class="src-row"><span class="claim"><b>Ken Griffin to clients: Citadel unwound more than 80% of the aggregate risk from the acquired book within ~3 weeks (2026-08-21)</b></span><span class="who">Reuters · Sen &amp; Basil · 2026-08-21 · IBTimes · Crypto Briefing · en.sedaily</span><span class="conf press">Press-sourced</span></div>
+        <div class="src-row"><span class="claim"><b>July 2026: leveraged long book hit by margin calls after the memory/AI momentum reversal; forced deleveraging</b></span><span class="who">CNBC (via MSN, ~2026-07-22) · CNN/MSN · press consensus, dossier §5</span><span class="conf press">Press-sourced</span></div>
+        <div class="src-row"><span class="claim"><b>“Worst month on record” for tech hedge funds, −10.2% in July 2026</b></span><span class="who">JPMorgan, cited in press (MSN/Reuters syndication)</span><span class="conf press">Press-sourced</span></div>
+        <div class="src-row"><span class="claim"><b>$400M investment in chip startup Source Foundry, after the rout</b></span><span class="who">MSN news feed, ~13 days before 2026-08-23</span><span class="conf press">Press-sourced</span></div>
+        <div class="src-row"><span class="claim"><b>Private Anthropic stake remained with the fund after the July sale</b></span><span class="who">MSN/TechCrunch syndication, ~2026-07-31</span><span class="conf press">Press-sourced</span></div>
+        <div class="src-row"><span class="claim"><b>Manager: Leopold Aschenbrenner, ex-OpenAI, 18-Month AI Intelligence Plan (2021), age 24 in 2026, “Nostradamus of AI”</b></span><span class="who">AsiaOne (~2026-07-09) · press bio items</span><span class="conf press">Press-sourced</span></div>
+        <div class="src-row"><span class="claim"><b>Co-PM: Carl Shulman</b></span><span class="who">13D/A cover parties (Seward &amp; Kissel, 2026-08-04) — role as reported, not separately confirmed</span><span class="conf press">Press-sourced</span></div>
+
+        <div class="src-row"><span class="claim"><b>Full-fund size at peak: ≈$45B (variants $45B–$57B by outlet)</b></span><span class="who">CNBC/AsiaOne/AAP syndication, July 2026 — no primary document states a $ figure</span><span class="conf unconfirmed">Unconfirmed</span></div>
+        <div class="src-row"><span class="claim"><b>July 2026 equity loss ≈ 67%; companion figure “up to $24B unwound”</b></span><span class="who">Memeburn / CNN-MSN / CNBC-MSN — single-signal estimates</span><span class="conf unconfirmed">Unconfirmed</span></div>
+        <div class="src-row"><span class="claim"><b>Core Scientific “deemed beneficial ownership” 25,608,473 sh (8.1%) in the 2026-08-04 amendment footnote</b></span><span class="who">13D/A footnote itself (verified text) · reconciliation exhibits not pulled — treat as derivative</span><span class="conf unconfirmed">Unconfirmed</span></div>
+      </div>
+      <p class="cite" data-reveal style="margin-top:28px">Method: EDGAR company submission feeds (data.sec.gov/submissions) for the 13F/13D/13G/D/F3/F4 sets; full-text search for the phrase across all filers; per-accession primary documents (infoTable XML, cover pages) fetched and summed. Outlet claims are recorded as found on 2026-08-23; links to third-party articles are omitted by choice — the attribution, date, and byline are the citable parts. This page is a research artifact, not investment advice, and quotes the record rather than the rumor.</p>
+      <figure class="figure" data-reveal>
+        <img src="assets/img/trader-kathy.jpg" alt="A trader on the floor of the New York Stock Exchange between screens" loading="lazy">
+        <figcaption><b>Behind every "verified" tag is a person reading a filing.</b> The confidence tiers above were assigned the slow way: primary documents fetched, info-tables summed, outlet claims dated and bylined. Photo: kathy ireland, CC BY-SA 2.0, via Wikimedia Commons.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band tight">
+    <div class="inner">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)" data-reveal>
+        <div style="background:var(--ink);padding:clamp(22px,3vw,40px)">
+          <p style="font-family:var(--sans);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:14px" class="ok">Verified</p>
+          <p style="font-size:15px">If the 13F says 26, it is 26. Primary document read and, where possible, summed. The number ships with its accession.</p>
+        </div>
+        <div style="background:var(--ink);padding:clamp(22px,3vw,40px)">
+          <p style="font-family:var(--sans);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:14px;color:var(--paper)">Press-sourced</p>
+          <p style="font-size:15px">A named newsroom, a date, a byline where reported. We reproduce it as reporting — including its “sources say” — never as fact.</p>
+        </div>
+        <div style="background:var(--ink);padding:clamp(22px,3vw,40px)">
+          <p style="font-family:var(--sans);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:14px" class="red">Unconfirmed</p>
+          <p style="font-size:15px">The figure moves between outlets, or no primary document exists for it. It appears with ≈, in a range, or tagged — and it never enters the AUM arithmetic.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+</main>
+
+<footer class="colophon">
+  <span>SA-001 · SITUATIONAL AWARENESS — A POST-MORTEM</span>
+  <span>RESEARCH SITE · NOT INVESTMENT ADVICE</span>
+  <span>PRIMARY SOURCE: SEC EDGAR · CIK 0002045724</span>
+  <span>2026-08-23</span>
+</footer>
+
+<script>
+/* ---------- reveal / bars / concentration ---------- */
+(function () {
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var targets = Array.prototype.slice.call(document.querySelectorAll(".bars, [data-reveal], .conc"));
+  if (reduce || !("IntersectionObserver" in window)) { targets.forEach(function (el) { el.classList.add("in"); }); }
+  else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.15, rootMargin: "0px 0px -6% 0px" });
+    function immediate() {
+      var ih = window.innerHeight || document.documentElement.clientHeight || 900;
+      targets.forEach(function (el) {
+        if (el.classList.contains("in")) return;
+        var r = el.getBoundingClientRect();
+        if (r.top < ih && r.bottom > 0) { el.classList.add("in"); io.unobserve(el); }
+        else io.observe(el);
+      });
+    }
+    immediate();
+    if (window.requestAnimationFrame) requestAnimationFrame(function () { requestAnimationFrame(immediate); });
+    window.addEventListener("load", immediate);
+  }
+
+  /* ---------- scroll progress bar ---------- */
+  var prog = document.createElement("div");
+  prog.className = "progress";
+  document.body.appendChild(prog);
+  var progTicking = false;
+  window.addEventListener("scroll", function () {
+    if (progTicking) return;
+    progTicking = true;
+    requestAnimationFrame(function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+      progTicking = false;
+    });
+  }, { passive: true });
+
+  /* ---------- count-up numerals ---------- */
+  function fmt(el, val) {
+    var dec = parseInt(el.dataset.decimals || "0", 10);
+    el.textContent = (el.dataset.prefix || "") + val.toFixed(dec) + (el.dataset.suffix || "");
+  }
+  function countUp(el) {
+    var target = parseFloat(el.dataset.count);
+    if (isNaN(target)) return;
+    var t0 = null, dur = 1500;
+    function step(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1);
+      p = 1 - Math.pow(1 - p, 3);
+      fmt(el, target * p);
+      if (p < 1) requestAnimationFrame(step);
+      else fmt(el, target);
+    }
+    requestAnimationFrame(step);
+  }
+  var counted = document.querySelectorAll("[data-count]");
+  if (reduce) {
+    counted.forEach(function (el) { fmt(el, parseFloat(el.dataset.count)); });
+  } else {
+    var cio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { countUp(e.target); cio.unobserve(e.target); } });
+    }, { threshold: 0.5 });
+    counted.forEach(function (el) { cio.observe(el); });
+  }
+
+  /* ---------- leverage slider ---------- */
+  var lr = document.getElementById("lvlRange");
+  if (lr) {
+    var lvlE = document.getElementById("lvlE"),
+        lvlEv = document.getElementById("lvlEv"),
+        lvlSt = document.getElementById("lvlStatus"),
+        lvlPct = document.getElementById("lvlPct");
+    function lvl() {
+      var d = +lr.value;
+      lvlPct.textContent = "−" + d + "%";
+      var eq = Math.max(0, 20 - d);
+      lvlE.style.width = eq + "%";
+      lvlE.classList.toggle("warn", d >= 15);
+      lvlEv.textContent = "$" + eq;
+      lvlSt.classList.remove("warn", "fail");
+      if (d >= 25) { lvlSt.classList.add("fail"); lvlSt.textContent = "THE BOOK IS GONE — EQUITY TOTALY WIPED OUT"; }
+      else if (d >= 20) { lvlSt.classList.add("fail"); lvlSt.textContent = "FORCED LIQUIDATION — THE BROKER IS SELLING"; }
+      else if (d >= 15) { lvlSt.classList.add("warn"); lvlSt.textContent = "MARGIN CALL — POST MORE COLLATERAL, NOW"; }
+      else { lvlSt.textContent = "HEALTHY — THE LEVERAGE IS DOING ITS JOB"; }
+    }
+    lr.addEventListener("input", lvl);
+    lvl();
+  }
+
+  /* ---------- donut: draw-in + hover ---------- */
+  var dn = document.getElementById("donut");
+  if (dn) {
+    var segrs = Array.prototype.slice.call(dn.querySelectorAll("circle.seg"));
+    var dV = document.getElementById("donutV"), dL = document.getElementById("donutL");
+    var defV = dV.textContent, defL = dL.textContent;
+    segrs.forEach(function (c) {
+      c.dataset.dash = c.getAttribute("stroke-dasharray");
+      if (!reduce) c.setAttribute("stroke-dasharray", "0 503");
+      c.addEventListener("mouseenter", function () {
+        dV.textContent = c.dataset.val + "%";
+        dL.textContent = c.dataset.name;
+      });
+      c.addEventListener("mouseleave", function () {
+        dV.textContent = defV; dL.textContent = defL;
+      });
+    });
+    if (!reduce) {
+      var dio = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting) {
+            segrs.forEach(function (c, i) {
+              setTimeout(function () { c.setAttribute("stroke-dasharray", c.dataset.dash); }, i * 150);
+            });
+            dio.disconnect();
+          }
+        });
+      }, { threshold: 0.35 });
+      dio.observe(dn);
+    }
+  }
+
+  /* ---------- hero parallax ---------- */
+  var hb = document.querySelector(".hero-bg img");
+  if (hb && !reduce) {
+    window.addEventListener("scroll", function () {
+      var y = window.scrollY;
+      if (y < window.innerHeight * 1.2) hb.style.transform = "translateY(" + (y * 0.18) + "px)";
+    }, { passive: true });
+  }
+
+  /* ---------- quarter scrubber ---------- */
+  var QUARTERS = [
+    { label: "12·24", aum: "$254.8M",  pos: 6,  note: "First reported book: data-center memory, power and semis — Marvell, Vistra, Vertiv.", state: "" },
+    { label: "03·25", aum: "$1.01B",   pos: 12, note: "First leveraged expressions: Intel long calls enter the book.", state: "" },
+    { label: "06·25", aum: "$2.12B",   pos: 9,  note: "VanEck Semiconductor ETF put (~$570M notional) — the hedge layer is born.", state: "" },
+    { label: "09·25", aum: "$4.14B",   pos: 28, note: "Neocloud sleeve expands: CoreWeave $563M, Core Scientific $362M, IREN, Applied Digital.", state: "" },
+    { label: "12·25", aum: "$5.52B",   pos: 29, note: "Bloom Energy the largest name. Long calls on CoreWeave and Intel carry leverage.", state: "" },
+    { label: "03·26", aum: "$13.68B",  pos: 42, note: "AUM triples in a quarter. Long puts on NVDA / ORCL / AVGO / AMD plus a $2B ETF put.", state: "" },
+    { label: "06·26", aum: "$20.24B",  pos: 26, note: "Peak public book. SanDisk $5.67B + Micron $5.57B = 55.6% of the book in one theme: memory.", state: "peak" },
+    { label: "07·26", aum: "SOLD",     pos: null, note: "Memory-momentum reversal. Margin calls force the public book out the door to Citadel at a discount (Reuters, Jul 30). Equity lost in July: ~67% (press; exact figure unconfirmed).", state: "lose" },
+    { label: "08·26", aum: ">80% UNWOUND", pos: null, note: "Ken Griffin to clients: Citadel has already shed >80% of the risk it bought from the fund. The original book no longer exists anywhere.", state: "lose" }
+  ];
+  var scrub = document.getElementById("quarterScrub");
+  if (scrub) {
+    var ticks = scrub.querySelectorAll(".tick");
+    var line = scrub.querySelector(".flagline");
+    var outBig = document.getElementById("qrAum");
+    var outNote = document.getElementById("qrNote");
+    var outPos = document.getElementById("qrPos");
+    function set(i) {
+      var q = QUARTERS[i]; if (!q) return;
+      ticks.forEach(function (t, j) { t.classList.toggle("on", j === i); });
+      var x = ((i + 0.5) / ticks.length) * 100;
+      line.style.left = x + "%";
+      line.className = "flagline" + (q.state === "lose" ? " lose" : "") + (i / ticks.length > 0.72 ? " flip" : "");
+      line.setAttribute("data-cap", q.label);
+      if (outBig) {
+        outBig.innerHTML = q.aum === "SOLD" ? 'SOLD<span class="u"> public book → Citadel</span>'
+          : q.aum === ">80% UNWOUND" ? '&gt;80%<span class="u"> of that risk unwound by buyer</span>'
+          : q.aum + '<span class="u"> public book</span>';
+      }
+      if (outPos) outPos.textContent = q.pos !== null ? q.pos + " positions (13F)" : "n/a — outside the 13F record";
+      if (outNote) outNote.textContent = q.note;
+      scrub.querySelectorAll(".tick").forEach(function (t, j) { t.setAttribute("aria-selected", String(j === i)); });
+    }
+    ticks.forEach(function (t, i) {
+      t.addEventListener("click", function () { set(i); });
+      t.addEventListener("keydown", function (ev) {
+        if (ev.key === "ArrowRight" && i < ticks.length - 1) { set(i + 1); ticks[i + 1].focus(); }
+        if (ev.key === "ArrowLeft" && i > 0) { set(i - 1); ticks[i - 1].focus(); }
+      });
+    });
+    set(QUARTERS.length - 1);
+    if (!reduce) {
+      var tio = new IntersectionObserver(function (en) {
+        en.forEach(function (e) {
+          if (e.isIntersecting) {
+            var steps = 0;
+            var iv = setInterval(function () { set(steps); steps++; if (steps >= QUARTERS.length) { clearInterval(iv); set(QUARTERS.length - 1); } }, 140);
+            tio.disconnect();
+          }
+        });
+      }, { threshold: 0.3 });
+      tio.observe(scrub);
+    }
+  }
+
+  document.querySelectorAll(".barcell").forEach(function (c) {
+    var b = c.querySelector(".bar");
+    if (b && b.dataset.h) b.style.height = b.dataset.h;
+  });
+
+  /* ---------- room scrollspy ---------- */
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll(".rooms a[href^='#room-']"));
+    var ids = links.map(function (a) { return a.getAttribute("href").slice(1); }).filter(function (id) { return document.getElementById(id); });
+    if (!ids.length) return;
+    var ticking = false;
+    function update() {
+      var pos = window.scrollY + 140;
+      var cur = ids[0];
+      ids.forEach(function (id) { var el = document.getElementById(id); if (el && el.getBoundingClientRect().top <= 140) cur = id; });
+      if (window.innerHeight + Math.round(window.scrollY) >= document.body.offsetHeight - 2) cur = ids[ids.length - 1];
+      links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + cur); });
+    }
+    window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(function () { update(); ticking = false; }); } }, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  })();
+})();
+</script>
+</body>
+</html>
